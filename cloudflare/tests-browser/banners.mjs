@@ -9,7 +9,9 @@ try{
   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   const fixture=structuredClone(real);fixture.slides[0]={...fixture.slides[0],customImage:'/img/club-galope.webp',buttonUrl:'#producto-1',mediaFit:'contain'};
   await page.route('**/api/store',r=>r.fulfill({json:fixture}));await page.goto(base);await page.waitForSelector('.pc');
-  const box=await page.locator('#bn').boundingBox();assert.ok(Math.abs(box.width-width)<1);assert.ok(Math.abs(box.width/box.height-3.2)<.01,JSON.stringify(box));
+  assert.equal(await page.locator('.galope-hero').count(),0);assert.equal(await page.locator('main > section').first().getAttribute('id'),'ofertas');
+  const header=await page.locator('.store-header').boundingBox();
+  const box=await page.locator('#bn').boundingBox();assert.ok(Math.abs(box.y-(header.y+header.height))<2,'El banner debe comenzar justo debajo del menú');assert.ok(Math.abs(box.width-width)<1);assert.ok(Math.abs(box.width/box.height-3.2)<.01,JSON.stringify(box));
   assert.equal(await page.locator('.sl.on').evaluate(e=>getComputedStyle(e,'::before').display),'none');assert.equal(await page.locator('#bn .sl-c').count(),0);assert.equal(await page.locator('.banner-count').count(),0);assert.equal(await page.locator('#bn h2').count(),0);
   const media=await page.locator('.sl.on>.banner-media').boundingBox();assert.ok(Math.abs(media.width-box.width)<1&&Math.abs(media.height-box.height)<1);
   await page.locator('.sl.on .artwork-target').click();await page.waitForSelector('#modal.on');assert.equal(new URL(page.url()).hash,'#producto-1');await page.reload();await page.waitForSelector('#modal.on');await page.locator('#modal .x').click();
