@@ -30,7 +30,7 @@
   "vars": {
     "ENVIRONMENT": "development",
     "BOLD_MODE": "sandbox",
-    "GOOGLE_CLIENT_ID": "",
+    "GOOGLE_CLIENT_ID": "89468337219-9iruu38h1orohhpkr559umh35gk072be.apps.googleusercontent.com",
     "ADMIN_EMAILS": "galopegalope44@gmail.com",
     "SESSION_TTL_HOURS": "12"
   },

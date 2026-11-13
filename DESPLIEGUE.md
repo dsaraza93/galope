@@ -63,6 +63,6 @@ Se puede conectar después este repositorio con Cloudflare Workers Builds. Confi
 
 El nombre configurado para el bucket es `galope-media`; debe coincidir con el nombre real del bucket en Cloudflare. El valor `2921473c01d366dccb385ff56cb48513` se recibió como identificador de R2, pero un binding R2 requiere `bucket_name`, no un identificador opaco. Su función no se ha confirmado: no se añadió como bucket ni como credencial.
 
-El correo administrador ya se configuró como `galopegalope44@gmail.com`. Aún faltan el ID público de cliente OAuth de Google y una sesión autorizada de Cloudflare para publicar desde este entorno. El ID de base de datos y el acceso a GitHub no autentican frente a Cloudflare.
+El correo administrador ya se configuró como `galopegalope44@gmail.com`. El ID público de cliente OAuth de Google ya está configurado. Antes de iniciar sesión, autoriza en Google Cloud el origen HTTPS real de la tienda. Sigue pendiente una sesión autorizada de Cloudflare para publicar desde este entorno. El ID de base de datos y el acceso a GitHub no autentican frente a Cloudflare.
 
 Para explicar el almacenamiento gratuito al cliente, consulta [FOTOS_Y_COSTOS.md](FOTOS_Y_COSTOS.md).
