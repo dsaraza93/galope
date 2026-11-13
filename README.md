@@ -2,7 +2,7 @@
 
 Tienda independiente adaptada desde Babycenter con la identidad y el catálogo de referencia de Galope: rojo, negro y crema, logo original, sombreros, botas, camisas baqueras, correas, cotizas, gorras, ruanas y accesorios.
 
-**Estado:** código preparado para GitHub. No se ha publicado un sitio web ni conectado una cuenta de pagos. GitHub almacena el proyecto; la tienda con API, administración e inventario necesita un alojamiento como Cloudflare Workers + D1 + R2.
+**Estado:** proyecto conectado a Cloudflare Workers + D1 + R2. El despliegue ahora inicializa automáticamente una base recién migrada antes de publicar. No se ha conectado una cuenta de pagos.
 
 ## Funciones
 

@@ -27,10 +27,9 @@ En Google Cloud autoriza el origen local y el futuro origen HTTPS del Worker. No
 
 ```bash
 npm run db:remote
-npm run seed:remote
 ```
 
-Aplica todas las migraciones, hasta `0007_campaign_mobile_media.sql`. Ejecuta `seed:remote` **solo al preparar una instalación nueva**. El seed no sobreescribe productos existentes, pero repetirlo tras borrar ejemplos puede volver a agregarlos. No importes pedidos ni bases de Babycenter para esta tienda.
+Aplica todas las migraciones, hasta `0007_campaign_mobile_media.sql`. `npm run deploy` inicializa automáticamente los ajustes faltantes. Agrega el catálogo de ejemplo solo si no hay configuración, productos ni pedidos. Los despliegues siguientes conservan los datos y no restauran ejemplos borrados. No importes pedidos ni bases de Babycenter para esta tienda.
 
 En el panel completa fotografías, precios, existencias y condiciones de envío/retiro. El catálogo de referencia comienza con stock cero y los banners ocultos.
 
@@ -55,7 +54,7 @@ npm run deploy
 npm run smoke -- https://galope.TU-SUBDOMINIO.workers.dev
 ```
 
-`deploy` comprueba los recursos D1/R2. Si Google aún no está configurado, muestra un aviso y permite publicar la tienda; el panel administrador permanece bloqueado, incluso para sesiones anteriores. Configura Google para habilitar el acceso autorizado. El cron de conciliación se instala junto con el Worker. Un despliegue requiere conexión autorizada a Cloudflare; tener acceso a GitHub por sí solo no la proporciona.
+`deploy` comprueba los recursos D1/R2 e inicializa de forma segura la tienda antes de publicar. Si Google aún no está configurado, muestra un aviso y permite publicar la tienda; el panel administrador permanece bloqueado, incluso para sesiones anteriores. Configura Google para habilitar el acceso autorizado. El cron de conciliación se instala junto con el Worker. Un despliegue requiere conexión autorizada a Cloudflare; tener acceso a GitHub por sí solo no la proporciona.
 
 Se puede conectar después este repositorio con Cloudflare Workers Builds. Configura como carpeta raíz `cloudflare`, instalación `npm ci` y comando de despliegue `npm run db:remote && npm run deploy`. No agregues `seed:remote` a cada despliegue. Mantén los secretos en Cloudflare y la configuración de recursos en `wrangler.jsonc`.
 
@@ -66,3 +65,7 @@ El nombre configurado para el bucket es `galope-media`; debe coincidir con el no
 El correo administrador ya se configuró como `galopegalope44@gmail.com`. El ID público de cliente OAuth de Google ya está configurado. Antes de iniciar sesión, autoriza en Google Cloud el origen HTTPS real de la tienda. Sigue pendiente una sesión autorizada de Cloudflare para publicar desde este entorno. El ID de base de datos y el acceso a GitHub no autentican frente a Cloudflare.
 
 Para explicar el almacenamiento gratuito al cliente, consulta [FOTOS_Y_COSTOS.md](FOTOS_Y_COSTOS.md).
+
+## Tienda publicada con respuesta 503 tras la primera instalación
+
+Las migraciones crean tablas pero no bastan para abrir el catálogo. La inicialización ahora forma parte de `npm run deploy`, mediante `scripts/bootstrap.sql`. Repite el despliegue del commit corregido con el comando habitual: `cd cloudflare && npm run db:remote && npm run deploy`. El catálogo y los ajustes existentes se conservan.

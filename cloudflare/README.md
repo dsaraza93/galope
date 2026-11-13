@@ -7,4 +7,4 @@ Esta es la versión principal de la tienda. Conserva la API, inventario, adminis
 - [Validación de esta adaptación](VALIDACION.md)
 - [Contratos de API](API.md)
 
-No hay recursos productivos ni credenciales heredadas. La tienda no está publicada. Los ejemplos tienen stock cero y los banners comienzan ocultos. Pruebas con datos ficticios y compilación no equivalen a certificación de pagos.
+Los recursos de Galope son independientes de Babycenter. El despliegue inicializa automáticamente los ajustes faltantes y carga ejemplos solo en una tienda nueva. Los ejemplos tienen stock cero y los banners comienzan ocultos. Pruebas con datos ficticios y compilación no equivalen a certificación de pagos.

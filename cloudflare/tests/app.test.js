@@ -26,6 +26,13 @@ beforeEach(async()=>{
 });
 afterEach(()=>vi.restoreAllMocks());
 describe('Interfaz y autenticación',()=>{
+ it('recupera la tienda 503 de una base recién migrada al inicializar el primer despliegue',async()=>{
+  await env.DB.exec('DELETE FROM products; DELETE FROM slides; DELETE FROM settings;');
+  expect((await call('/store')).status).toBe(503);
+  await env.DB.exec(env.TEST_BOOTSTRAP);
+  const response=await call('/store');expect(response.status).toBe(200);
+  const data=await response.json();expect(data.settings.name).toBe('Galope Tienda Llanera');expect(data.products).toHaveLength(12);expect(data.settings.wa).toBe('573115044650');
+ });
  it('sin configuración Google publica el catálogo pero bloquea login y sesiones existentes',async()=>{
   for(const missing of [{GOOGLE_CLIENT_ID:''},{ADMIN_EMAILS:''}]){
    const target={...env,...missing};

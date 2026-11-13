@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "node scripts/preflight.mjs && wrangler deploy",
+    "deploy": "node scripts/preflight.mjs && npm run db:bootstrap && wrangler deploy",
     "check": "wrangler deploy --dry-run --outdir .build",
     "test": "vitest run && node --test tests-node/*.test.mjs",
     "db:local": "wrangler d1 migrations apply DB --local",
@@ -22,7 +22,8 @@
     "test:campaigns": "node tests-browser/campaigns.mjs",
     "test:banners": "node tests-browser/banners.mjs",
     "test:mobile": "node tests-browser/mobile.mjs",
-    "test:payment-browser": "node tests-browser/payment.mjs"
+    "test:payment-browser": "node tests-browser/payment.mjs",
+    "db:bootstrap": "wrangler d1 execute DB --remote --file scripts/bootstrap.sql"
   },
   "dependencies": {
     "@cf-wasm/photon": "0.4.0",
