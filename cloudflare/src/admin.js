@@ -298,7 +298,7 @@ function readProduct(b) {
     emoji: v.str(b.emoji, 'Emoji', {
       max: 8,
       required: false
-    }) || '🍼',
+    }) || '🤠',
     desc: v.str(b.desc, 'Descripción', {
       max: 1000,
       oneLine: false,

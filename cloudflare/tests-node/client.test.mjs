@@ -18,3 +18,8 @@ test('las fotos grandes se normalizan sin enviar EXIF ni perder el adjunto',asyn
  assert.equal(canvas.width,1200);assert.equal(canvas.height,800);assert.ok(drawn&&bitmapClosed);assert.equal(captured.get('file').type,'image/webp');assert.equal(await captured.get('file').text(),'webp-data');
 });
 test('todos los scripts públicos tienen sintaxis válida',()=>{for(const file of fs.readdirSync('public/js').filter(x=>x.endsWith('.js')))new vm.Script(fs.readFileSync('public/js/'+file,'utf8'),{filename:file});});
+
+for(const method of ['DELETE','POST'])test(method+' sin campos envía JSON vacío y permite borrar o cerrar sesión',async()=>{
+ let captured;const context=client(async(_path,options)=>{captured=options;return {ok:true,json:async()=>({ok:true})};});
+ context.verb=method;await vm.runInContext("api('/admin/test',{method:verb})",context);assert.equal(captured.headers['Content-Type'],'application/json');assert.equal(captured.body,'{}');assert.equal(captured.headers['X-Requested-With'],'galope');
+});

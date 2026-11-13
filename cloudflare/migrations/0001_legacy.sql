@@ -8,7 +8,7 @@ CREATE TABLE products (
   old_price   INTEGER NOT NULL DEFAULT 0,
   stock       INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
   badge       TEXT NOT NULL DEFAULT '',
-  emoji       TEXT NOT NULL DEFAULT '🍼',
+  emoji       TEXT NOT NULL DEFAULT '🤠',
   description TEXT NOT NULL DEFAULT '',
   feats       TEXT NOT NULL DEFAULT '[]',
   imgs        TEXT NOT NULL DEFAULT '[]',

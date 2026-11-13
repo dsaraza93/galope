@@ -1,6 +1,6 @@
 # Galope · Tienda Llanera
 
-Tienda independiente adaptada desde Babycenter con la identidad y el catálogo de referencia de Galope: rojo, negro y crema, logo original, sombreros, botas, camisas baqueras, correas, cotizas, gorras, ruanas y accesorios.
+Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crema, logo original, sombreros, botas, camisas baqueras, correas, cotizas, gorras, ruanas y accesorios.
 
 **Estado:** proyecto conectado a Cloudflare Workers + D1 + R2. El despliegue ahora inicializa automáticamente una base recién migrada antes de publicar. No se ha conectado una cuenta de pagos.
 
@@ -16,7 +16,7 @@ Tienda independiente adaptada desde Babycenter con la identidad y el catálogo d
 
 Los artículos unisex se incluyen al explorar hombre o mujer y también pueden consultarse por separado. El filtro de ofertas muestra productos cuyo precio anterior es mayor que el actual.
 
-El WhatsApp de atención es **+57 311 504 4650**, configurable desde el panel. El catálogo inicial reproduce los **12 ejemplos** del archivo enviado, con **stock cero** hasta que el negocio confirme las existencias. No se heredaron compradores, pedidos, sesiones ni credenciales de Babycenter. Las cinco posiciones de banners empiezan ocultas y se activan desde el panel después de cargar las piezas de Galope.
+El WhatsApp de atención es **+57 311 504 4650**, configurable desde el panel. El catálogo inicial reproduce los **12 ejemplos** del archivo enviado, con **stock cero** hasta que el negocio confirme las existencias. La instalación inicial no incluye compradores, pedidos ni sesiones de ejemplo. Las cinco posiciones de banners empiezan ocultas y se activan desde el panel después de cargar las piezas de Galope.
 
 ## Ejecutar y comprobar la versión principal
 
@@ -43,7 +43,7 @@ La integración continua de GitHub ejecuta ambas comprobaciones al subir cambios
 
 ## Publicar más adelante
 
-Consulta [DESPLIEGUE.md](DESPLIEGUE.md). La configuración se llama `galope`, con una base D1 `galope` y un bucket R2 `galope-media`. El identificador de D1 ya corresponde al facilitado para Galope. Aún deben confirmarse el nombre real del bucket y los datos de acceso con Google antes de publicar. No reutilices los recursos de Babycenter.
+Consulta [DESPLIEGUE.md](DESPLIEGUE.md). La configuración se llama `galope`, con una base D1 `galope` y un bucket R2 `galope-media`. El identificador de D1 ya corresponde al facilitado para Galope. Aún deben confirmarse el nombre real del bucket y los datos de acceso con Google antes de publicar. Utiliza únicamente los recursos de esta tienda.
 
 Bold conserva el flujo del proyecto original, pero necesita las llaves propias del comercio. Permanece en **sandbox** y sin llaves: el checkout no realiza cobros. Addi y Sistecrédito siguen pendientes como en el origen. Las campañas se preparan y exportan manualmente; no hay proveedor oficial de WhatsApp configurado.
 
@@ -54,4 +54,6 @@ Bold conserva el flujo del proyecto original, pero necesita las llaves propias d
 - `server/`: alternativa Express/SQLite conservada del origen; requiere sus propias dependencias y configuración. La validación de esta adaptación se centra en Workers.
 - `.github/workflows/validate.yml`: pruebas y compilación, sin despliegue automático.
 
-El esquema conserva internamente `world` y las columnas de edad para compatibilidad estructural; la interfaz comercial usa públicos hombre/mujer/unisex y no presenta filtros infantiles. Esta instalación es para un negocio nuevo, no para importar la base productiva de Babycenter.
+El esquema conserva internamente `world` y las columnas de edad para compatibilidad estructural; la interfaz comercial usa públicos hombre/mujer/unisex y no presenta filtros infantiles. La base productiva de Galope se conserva entre despliegues.
+
+Para entrar al panel y resolver problemas de Google, consulta [ACCESO_ADMIN.md](ACCESO_ADMIN.md).

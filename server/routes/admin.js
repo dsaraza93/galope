@@ -179,7 +179,7 @@ function readProduct(b) {
     price, old,
     stock: v.int(b.stock, 'Stock', { min: 0, max: 100_000 }),
     badge: v.str(b.badge, 'Etiqueta', { max: 24, required: false }),
-    emoji: v.str(b.emoji, 'Emoji', { max: 8, required: false }) || '🍼',
+    emoji: v.str(b.emoji, 'Emoji', { max: 8, required: false }) || '🤠',
     desc: v.str(b.desc, 'Descripción', { max: 1000, oneLine: false, required: false }),
     feats, imgs, active: v.bool(b.active) ? 1 : 0,
   };

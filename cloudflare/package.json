@@ -23,7 +23,8 @@
     "test:banners": "node tests-browser/banners.mjs",
     "test:mobile": "node tests-browser/mobile.mjs",
     "test:payment-browser": "node tests-browser/payment.mjs",
-    "db:bootstrap": "wrangler d1 execute DB --remote --file scripts/bootstrap.sql"
+    "db:bootstrap": "wrangler d1 execute DB --remote --file scripts/bootstrap.sql",
+    "test:admin": "node tests-browser/admin.mjs"
   },
   "dependencies": {
     "@cf-wasm/photon": "0.4.0",

@@ -29,7 +29,7 @@ En Google Cloud autoriza el origen local y el futuro origen HTTPS del Worker. No
 npm run db:remote
 ```
 
-Aplica todas las migraciones, hasta `0007_campaign_mobile_media.sql`. `npm run deploy` inicializa automáticamente los ajustes faltantes. Agrega el catálogo de ejemplo solo si no hay configuración, productos ni pedidos. Los despliegues siguientes conservan los datos y no restauran ejemplos borrados. No importes pedidos ni bases de Babycenter para esta tienda.
+Aplica todas las migraciones, hasta `0007_campaign_mobile_media.sql`. `npm run deploy` inicializa automáticamente los ajustes faltantes. Agrega el catálogo de ejemplo solo si no hay configuración, productos ni pedidos. Los despliegues siguientes conservan los datos y no restauran ejemplos borrados. En una instalación nueva, no importes datos de otro negocio.
 
 En el panel completa fotografías, precios, existencias y condiciones de envío/retiro. El catálogo de referencia comienza con stock cero y los banners ocultos.
 

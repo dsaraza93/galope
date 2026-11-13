@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {exportSql} from '../scripts/import-sqlite.mjs';
 const schema=()=>fs.readdirSync('migrations').filter(x=>x.endsWith('.sql')).sort().map(x=>fs.readFileSync('migrations/'+x,'utf8')).join('\n');
-const insertBold=(db,id,status,extra='')=>db.prepare(`INSERT INTO bold_checkout_orders(id,access_token_hash,expires_at,status,name,tel,document_type,document_number,address,fulfillment,items_json,subtotal,shipping,total${extra?',stock_held':''}) VALUES(?,?,'2099-01-01',?,'Cliente','573001234567','CC','12345678','Calle 123','delivery','[{"id":1,"q":1,"price":64900,"name":"Body"}]',64900,0,64900${extra?',1':''})`).run(id,'hash',status);
+const insertBold=(db,id,status,extra='')=>db.prepare(`INSERT INTO bold_checkout_orders(id,access_token_hash,expires_at,status,name,tel,document_type,document_number,address,fulfillment,items_json,subtotal,shipping,total${extra?',stock_held':''}) VALUES(?,?,'2099-01-01',?,'Cliente','573001234567','CC','12345678','Calle 123','delivery','[{"id":1,"q":1,"price":64900,"name":"Sombrero"}]',64900,0,64900${extra?',1':''})`).run(id,'hash',status);
 test('importa SQLite legacy, conserva clientes/campañas/fotos y vincula ventas sin descontar dos veces',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bc-import-'));const file=path.join(dir,'legacy.db');let source,target;
  try{

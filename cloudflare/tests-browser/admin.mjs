@@ -1,0 +1,28 @@
+import {chromium} from 'playwright-core';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const base=process.env.ADMIN_TEST_URL||'http://127.0.0.1:8791';
+if(!['127.0.0.1','localhost'].includes(new URL(base).hostname))throw new Error('Las pruebas solo pueden escribir datos ficticios en localhost.');
+const cookie=process.env.ADMIN_TEST_COOKIE;if(!cookie)throw new Error('Configura ADMIN_TEST_COOKIE con una sesión de D1 local.');
+const browser=await chromium.launch({executablePath:process.env.CHROME_BIN||'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+try{for(const width of [390,1440]){
+ const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.route('https://fonts.googleapis.com/**',r=>r.abort());
+ // Mock the external button only. Worker, D1, session authorization and API remain real.
+ let googleAttempts=0;await page.route('https://accounts.google.com/gsi/client',r=>{if(width===390 && ++googleAttempts===1)return r.abort();return r.fulfill({contentType:'application/javascript',body:`window.google={accounts:{id:{initialize(o){window.testGoogleOptions=o},renderButton(t){const b=document.createElement('button');b.textContent='Continuar con Google';t.append(b)}}}};`});});
+ await page.goto(base);await page.locator('.footer-admin').click();if(width===390){await page.waitForFunction(()=>document.querySelector('#lerr')?.textContent.includes('No se pudo cargar Google'));await page.locator('[data-act="admin"]').click();}await page.waitForSelector('#gbtn button');assert.equal(new URL(page.url()).hash,'#admin');assert.equal(await page.evaluate(()=>testGoogleOptions.login_hint),'galopegalope44@gmail.com');
+ await page.locator('[data-act="admin"]').click();await page.waitForSelector('#gbtn button');await page.locator('.login-config summary').click();assert.ok((await page.locator('.login-config').textContent()).includes(new URL(base).origin));
+ await page.locator('a').filter({hasText:'Ver tienda'}).click();await page.waitForSelector('#grid');
+ await context.addCookies([{name:'galope_sid',value:cookie,url:base}]);await page.locator('.footer-admin').click();await page.waitForSelector('.side');
+ for(const id of ['res','pro','ord','ped','pag','ban','aju','sus']){await page.locator(`.side [data-arg="${id}"]`).click();await page.waitForSelector(`.side [data-arg="${id}"].on`);assert.ok((await page.locator('.adm main').innerText()).trim().length>20);const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(layout.scroll<=layout.width+1,JSON.stringify({tab:id,...layout}));console.log(`OK ${width}: ${id}`);}
+ await page.locator('.side [data-arg="pro"]').click();await page.waitForSelector('.side [data-arg="pro"].on');await page.locator('[data-act="pedit"][data-arg=""]').click();
+ const form=page.locator('form[data-form="product"]'),name=`Sombrero de prueba UI ${width} ${Date.now()}`;
+ await form.locator('[name="name"]').fill(name);await form.locator('[name="categories"]').first().check();await form.locator('[name="world"]').selectOption('unisex');await form.locator('[name="price"]').fill('125000');await form.locator('[name="stock"]').fill('3');await form.locator('[data-chg="pick"]').setInputFiles(fileURLToPath(new URL('../public/img/club-galope.webp',import.meta.url)));await page.waitForSelector('#gp .gi img');await form.locator('button').filter({hasText:'Guardar producto'}).click();await page.waitForSelector('#modal.on',{state:'hidden'});
+ let row=page.locator('.panel .row').filter({hasText:name});await row.waitFor();await row.locator('[data-act="pedit"]').click();assert.equal(await form.locator('[name="world"]').inputValue(),'unisex');await form.locator('[name="stock"]').fill('4');await form.locator('button').filter({hasText:'Guardar producto'}).click();await page.waitForSelector('#modal.on',{state:'hidden'});row=page.locator('.panel .row').filter({hasText:name});await row.locator('[data-act="pdel"]').click();await row.waitFor({state:'hidden'});
+ const phone='5730011122'+(width===390?'33':'44');assert.equal((await page.request.post(base+'/api/subscribe',{headers:{'X-Requested-With':'galope'},data:{name:`Suscriptor UI ${width}`,tel:phone,interest:'hombre',consent:true}})).status(),201);
+ await page.locator('.side [data-arg="sus"]').click();await page.waitForSelector('.side [data-arg="sus"].on');assert.ok((await page.locator('#sub-list').innerText()).includes(phone));
+ const campaign=page.locator('form[data-form="campaign"]'),campaignName=`Campaña de prueba UI ${width} ${Date.now()}`;await campaign.locator('[name="name"]').fill(campaignName);await campaign.locator('[name="message"]').fill('Hola, novedades llaneras de Galope para prueba local.');await campaign.locator('[name="audience"]').selectOption('hombre');await campaign.locator('button').filter({hasText:'Guardar borrador'}).click();let draft=page.locator('.club-campaign-row').filter({hasText:campaignName});await draft.waitFor();await draft.locator('[data-act="cdel"]').click();await draft.waitFor({state:'hidden'});
+ if(width===1440){await page.reload();await page.waitForSelector('.side');await page.locator('[data-act="logout"]').click();await page.waitForSelector('#gbtn button');assert.equal((await page.request.get(base+'/api/admin/products')).status(),401);console.log('OK sesión persistente y cierre de sesión');}
+ assert.deepEqual(errors,[]);console.log(`OK ${width}: acceso, módulos, productos unisex, suscriptores y campañas`);await context.close();
+}}finally{await browser.close();}

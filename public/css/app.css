@@ -155,7 +155,7 @@ header.top .wrap{max-width:1360px;height:84px;gap:28px}
 .fe{display:grid;grid-template-columns:1fr 1fr;border-radius:36px;overflow:hidden;margin:0 0 56px;background:var(--pu);color:#fff;min-height:380px}
 .fe .t{padding:56px;display:flex;flex-direction:column;justify-content:center;gap:14px}.fe h2{font-size:clamp(32px,4vw,50px)}.fe h2 em{color:#ffc6df}.fe p{opacity:.85;max-width:44ch;margin:0}
 .fe .btn{align-self:flex-start;background:#fff;color:var(--pu);margin-top:8px}
-.fe .im{background:url('/img/play.webp') center/cover;min-height:260px}
+.fe .im{background:url('/img/club-galope.webp') center/cover;min-height:260px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
 .pc{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:12px;transition:transform .3s,box-shadow .3s;display:flex;flex-direction:column}
 .pc:hover{transform:translateY(-6px);box-shadow:0 26px 50px rgba(74,34,112,.14)}

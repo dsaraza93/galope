@@ -18,6 +18,7 @@ function toggleMobileMenu() {
   header.querySelector('.nav a')?.focus({preventScroll:true});
 }
 const A = {
+  admin: () => openAdminRoute(),
   offers: () => { offersOnly = true; world = ''; cat = ''; q = ''; favOnly = false; const input = document.querySelector('#q'); if(input)input.value = ''; renderGrid(); goTo('prods'); },
   verifypayment: () => { void checkBoldReturn({quiet:false,restart:true}); },
   mobilemenu: () => toggleMobileMenu(),
@@ -78,6 +79,7 @@ const A = {
 };
 document.addEventListener('click', (e) => {
   const link=e.target.closest('a[href]');
+  if(link && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button!==0))return;
   if(link && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && e.button===0) {
     const url=new URL(link.href,location.href);
     if(url.origin===location.origin && url.pathname===location.pathname && /^#producto-[1-9]\d*$/.test(url.hash)) {
@@ -91,7 +93,8 @@ document.addEventListener('click', (e) => {
   if (!fn) return;
   if (t.tagName === 'A') e.preventDefault();
   if(!['mobilemenu','closemenu'].includes(t.dataset.act))closeMobileMenu();
-  fn(t.dataset.arg ?? '');
+  const task=fn(t.dataset.arg ?? '');
+  if(task?.catch)task.catch(e=>toast(e.message));
 });
 document.addEventListener('submit', (e) => {
   const f = e.target.closest('form[data-form]');
@@ -120,15 +123,29 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('keydown', (e) => e.key === 'Escape' && closeAll());
 
+let routeRun=0;
+async function openAdminRoute() {
+  closeAll({keepUrl:true});closeMobileMenu();
+  if(location.hash!=='#admin')history.pushState({galopeAdmin:true},'','#admin');
+  await route();scrollTo(0,0);
+}
 async function route() {
-  document.body.classList.toggle('store-page',location.hash!=='#admin');
+  const run=++routeRun,isAdmin=location.hash==='#admin';
+  document.body.classList.toggle('store-page',!isAdmin);
   document.body.classList.remove('mobile-menu-open');
-  if (location.hash === '#admin') {
-    if (!S.categories.length) await loadStore().catch(() => {});
+  if(isAdmin){
+    $('#app').innerHTML='<div class="boot" role="status">Abriendo administración de Galope…</div>';
+    if(!S.categories.length)await loadStore().catch(()=>{});
+    if(run!==routeRun || location.hash!=='#admin')return;
     return admin();
   }
-  try { await loadStore(); renderStore(); void checkBoldReturn({quiet:true}); }
-  catch (e) { $('#app').innerHTML = `<div class="boot">No pudimos cargar la tienda. ${esc(e.message)} <br><button class="btn" data-act="reload" style="margin-top:14px">Reintentar</button></div>`; }
+  try {
+    await loadStore();if(run!==routeRun || location.hash==='#admin')return;
+    renderStore();void checkBoldReturn({quiet:true});
+  } catch(e) {
+    if(run!==routeRun)return;
+    $('#app').innerHTML=`<div class="boot">No pudimos cargar la tienda. ${esc(e.message)} <br><button class="btn" data-act="reload" style="margin-top:14px">Reintentar</button></div>`;
+  }
 }
 A.reload = () => route();
 addEventListener('hashchange', () => { closeAll({keepUrl:true}); if(location.hash!=='#admin' && document.querySelector('#grid')){openProductHash();return;} route(); scrollTo(0, 0); });

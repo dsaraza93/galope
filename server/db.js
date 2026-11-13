@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS products (
   old_price   INTEGER NOT NULL DEFAULT 0,
   stock       INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
   badge       TEXT NOT NULL DEFAULT '',
-  emoji       TEXT NOT NULL DEFAULT '🍼',
+  emoji       TEXT NOT NULL DEFAULT '🤠',
   description TEXT NOT NULL DEFAULT '',
   feats       TEXT NOT NULL DEFAULT '[]',
   imgs        TEXT NOT NULL DEFAULT '[]',
@@ -188,15 +188,6 @@ for (const [name, def] of Object.entries({
 })) if (!campCols.includes(name)) db.exec(`ALTER TABLE campaigns ADD COLUMN ${name} ${def}`);
 
 /* ---------- Datos de ejemplo (solo la primera vez) ---------- */
-const FE = [
-  ['Algodón suave y respirable', 'Cuello con volante delicado', 'Cierre de broches para cambiar fácil', 'Lavable a máquina'],
-  ['Plato, vaso, cubiertos y babero', 'Silicona suave y flexible', 'Base antideslizante', 'Fácil de lavar'],
-  ['Se pliega para guardarla fácil', 'Fondo antideslizante', 'Tapón de drenaje', 'Ligera y resistente'],
-  ['Capota extensible', 'Suspensión en las 4 ruedas', 'Plegado compacto', 'Cinturón de seguridad de 5 puntos'],
-  ['Altura regulable', 'Malla transpirable lateral', 'Se acopla a la cama', 'Incluye colchón'],
-  ['Arco con juguetes colgantes', 'Teclado de piano con sonidos', 'Tapete lavable', 'Estimula tacto y vista'],
-];
-
 function seed() {
   // Each new installation receives only Galope demonstration products, never customer data.
   const sql = require('fs').readFileSync(require('path').join(__dirname, '..', 'cloudflare', 'scripts', 'demo.sql'), 'utf8');
@@ -206,7 +197,7 @@ seed();
 // Las dos tarjetas laterales del hero conservan su contenido original al migrar.
 const defaultSidePromos = [
   {eyebrow:'Envío gratis',title:'En compras desde $150.000',cta:'Comprar ahora',category:'',theme:'morado',active:true},
-  {eyebrow:'Nuevos ingresos',title:'Lo último para su llegada',cta:'Descubrir',category:'',theme:'crema',active:true},
+  {eyebrow:'Nuevos ingresos',title:'Estilo llanero para cada día',cta:'Descubrir',category:'',theme:'crema',active:true},
 ];
 if (!db.prepare("SELECT 1 FROM settings WHERE key='side_promos'").get()) {
   db.prepare('INSERT INTO settings(key,value) VALUES (?,?)').run('side_promos',JSON.stringify(defaultSidePromos));

@@ -22,6 +22,7 @@ function salesDates() {
 const fdate = (d) => new Date(d).toLocaleString('es-CO');
 
 async function adminShell(body) {
+  if(location.hash!=='#admin')return;
   const who = auth && auth.mode === 'google'
     ? `<span class="who">${esc(auth.email)}</span><button class="pill sm ghost" data-act="logout">Salir</button>` : '';
   $('#app').innerHTML = `<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><b style="font:700 25px 'Playfair Display'">Panel de administración</b><span style="flex:1"></span>${who}<a class="pill sm" href="#">← Ver tienda</a></div></header>
@@ -31,48 +32,48 @@ ${body}</main></div>`;
 }
 
 /* ---------- Acceso ---------- */
+let googleLoadPromise=null;
 function loadGoogle() {
-  return new Promise((ok, fail) => {
-    if (window.google && google.accounts) return ok();
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
-    s.onload = ok; s.onerror = () => fail(new Error('No se pudo cargar Google'));
-    document.head.appendChild(s);
-  });
+  if(window.google?.accounts?.id)return Promise.resolve();
+  if(googleLoadPromise)return googleLoadPromise;
+  googleLoadPromise=new Promise((resolve,reject)=>{
+    document.getElementById('galope-google-client')?.remove();
+    const script=document.createElement('script');script.id='galope-google-client';
+    const timer=setTimeout(()=>{script.remove();reject(new Error('Google no respondió. Comprueba tu conexión y vuelve a intentarlo.'));},12000);
+    script.src='https://accounts.google.com/gsi/client';script.async=true;
+    script.onload=()=>{clearTimeout(timer);if(window.google?.accounts?.id)resolve();else{script.remove();reject(new Error('No se pudo iniciar el acceso con Google.'));}};
+    script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error('No se pudo cargar Google. Comprueba bloqueadores o tu conexión y vuelve a intentarlo.'));};
+    document.head.appendChild(script);
+  }).catch(error=>{googleLoadPromise=null;throw error;});
+  return googleLoadPromise;
 }
+function loginError(message){const target=$('#lerr');if(location.hash==='#admin'&&target)target.textContent=message;}
 async function showLogin() {
-  $('#app').innerHTML = `<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
-<div class="login"><h2>Acceso administrador</h2><p>Inicia sesión con la cuenta de Google autorizada para administrar la tienda.</p><div id="gbtn"></div><p class="err" id="lerr" role="alert"></p></div>`;
-  if (!auth.googleClientId) {
-    $('#lerr').textContent = 'El acceso administrador está pendiente de configurar. Añade GOOGLE_CLIENT_ID en Cloudflare para habilitar el inicio de sesión.';
-    return;
-  }
+  if(location.hash!=='#admin')return;
+  $('#app').innerHTML=`<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
+<div class="login galope-login"><h2>Galope · Administración</h2><p>Inicia sesión con <strong>galopegalope44@gmail.com</strong> para administrar tu empresa.</p><div id="gbtn" aria-label="Iniciar sesión con Google"></div><p class="err" id="lerr" role="alert"></p><button type="button" class="pill sm ghost" data-act="admin">Reintentar acceso</button><details class="login-config"><summary>¿Google muestra «origin_mismatch»?</summary><p>En el cliente OAuth de Google Cloud, añade este origen exacto a los <strong>Orígenes autorizados de JavaScript</strong>:</p><code>${esc(location.origin)}</code><p>Utiliza el cliente <code>${esc(auth.googleClientId||'Pendiente de configurar')}</code>. Guarda el cambio en Google Cloud y vuelve a intentar el acceso.</p><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Abrir configuración de Google</a></details></div>`;
+  if(!auth.googleClientId){loginError('El acceso administrador está pendiente de configurar: falta GOOGLE_CLIENT_ID en Cloudflare.');return;}
   try {
-    await loadGoogle();
-    google.accounts.id.initialize({
-      client_id: auth.googleClientId,
-      callback: async (resp) => {
-        try { await api('/auth/google', { method: 'POST', body: { credential: resp.credential } }); await admin(); }
-        catch (e) { $('#lerr').textContent = e.message; }
-      },
-    });
-    google.accounts.id.renderButton($('#gbtn'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'es' });
-  } catch (e) { $('#lerr').textContent = e.message; }
+    await loadGoogle();if(location.hash!=='#admin'||!$('#gbtn'))return;
+    google.accounts.id.initialize({client_id:auth.googleClientId,login_hint:'galopegalope44@gmail.com',auto_select:false,callback:async resp=>{
+      try{await api('/auth/google',{method:'POST',body:{credential:resp.credential}});if(location.hash==='#admin')await admin();}
+      catch(e){loginError(e.message);}
+    }});
+    google.accounts.id.renderButton($('#gbtn'),{theme:'outline',size:'large',text:'signin_with',locale:'es'});
+  }catch(e){loginError(e.message);}
 }
-
 async function admin() {
-  try { auth = await api('/auth/status'); } catch (e) { $('#app').innerHTML = `<div class="boot">${esc(e.message)}</div>`; return; }
-  if (!auth.authenticated) return showLogin();
-  try { await renderTab(); }
-  catch (e) {
-    if (e.status === 401) { auth.authenticated = false; return showLogin(); }
-    toast(e.message);
-  }
+  try {
+    const status=await api('/auth/status');if(location.hash!=='#admin')return;auth=status;
+  }catch(e){if(location.hash==='#admin')$('#app').innerHTML=`<div class="login"><h2>Galope · Administración</h2><p class="err">${esc(e.message)}</p><button class="pill" data-act="admin">Reintentar acceso</button><p><a href="#">Volver a la tienda</a></p></div>`;return;}
+  if(!auth.authenticated)return showLogin();
+  try{await renderTab();}catch(e){if(location.hash!=='#admin')return;if(e.status===401){auth.authenticated=false;return showLogin();}toast(e.message);}
 }
-
+let adminRenderRun=0;
 async function renderTab() {
+  const renderRun=++adminRenderRun,selectedTab=tab;
   let body = '';
-  if (tab === 'res') {
+  if (selectedTab === 'res') {
     const dates=salesDates();
     const r=await api('/admin/summary?'+new URLSearchParams(dates));
     const points=r.trend||[], top=r.topProducts||[];
@@ -94,11 +95,11 @@ async function renderTab() {
     <div class="panel"><h3>Productos más vendidos</h3><p style="color:var(--mut);font-size:13px;margin-bottom:10px">Ranking por unidades, solo en pagos confirmados.</p>${top.length?top.map(p=>chartRow(p.name,p.units,100*p.units/maxUnits,'linear-gradient(90deg,#e29fcb,#794ca3)',p.units+' ud. · '+COP(p.revenue))).join(''):'<p>Sin productos vendidos en este período.</p>'}</div>
     <div class="panel"><h3>Modalidad de entrega</h3><div class="stats sales-stats">${metric('Domicilio',r.delivery,'Compras aprobadas','#548cc0')}${metric('Retiro en tienda',r.pickup,'Compras aprobadas','#8051a6')}</div><p style="color:var(--mut);font-size:12px;margin-top:12px">Este panel refleja ventas aprobadas, no entregas realizadas. La logística se gestiona por separado.</p></div>`;
   }
-  if (tab === 'pro') {
+  if (selectedTab === 'pro') {
     AP = await api('/admin/products');
     body = `<div class="panel"><div class="sec-h"><h3>Productos (${AP.length})</h3><button class="pill pk sm" data-act="pedit" data-arg="">+ Nuevo producto</button></div>${AP.map((p) => `<div class="row"><div class="mini" style="--t:${tint(p)}">${vis(p)}</div><div><b>${esc(p.name)}</b><br><small>${esc((p.categories || [p.cat]).join(' · '))} · ${p.world === 'unisex' ? 'Unisex' : p.world === 'mujer' ? 'Mujer' : 'Hombre'} · ${COP(p.price)} · Stock ${p.stock} · ${p.active ? 'Publicado' : 'Oculto'}</small></div><span></span><div class="acts"><button class="pill sm ghost" data-act="pedit" data-arg="${p.id}">Editar</button><button class="pill sm ghost" data-act="pdel" data-arg="${p.id}">Eliminar</button></div></div>`).join('')}</div>`;
   }
-  if (tab === 'pag') {
+  if (selectedTab === 'pag') {
     const payments=await api('/admin/bold-payments');
     const labels={PENDING:'Pendiente',PAID:'Aprobado',REJECTED:'Rechazado',FAILED:'Fallido',REVIEW:'En revisión',EXPIRED:'Reserva antigua · requiere revisión',VERIFYING:'Verificación pendiente · reserva protegida'};
     const paid=payments.filter(p=>p.status==='PAID');
@@ -120,11 +121,11 @@ async function renderTab() {
     ${['PENDING','VERIFYING','EXPIRED','REJECTED'].includes(p.status)?`<button type="button" class="pill sm ghost" data-act="verifyboldpayment" data-arg="${esc(p.id)}">Verificar con Bold</button>`:''}</div>`).join('')||'<p>Aún no existen intentos de pago.</p>'}
     <p style="color:var(--mut);font-size:12px;margin-top:12px">En Sandbox, Bold no envía webhooks automáticos. Un intento pendiente no es una venta confirmada.</p></div>`;
   }
-  if (tab === 'ord') {
+  if (selectedTab === 'ord') {
     const orders=await api('/admin/orders'+(ordFilter?'?status='+encodeURIComponent(ordFilter):''));
     body=`<div class="panel"><div class="sec-h"><h3>Pedidos (${orders.length})</h3><a class="pill sm ghost" href="/api/admin/orders.csv">Descargar CSV</a></div><label class="fld">Filtrar por estado<select data-chg="ofilter"><option value="">Todos</option>${ST.map(s=>`<option ${ordFilter===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label>${orders.map(o=>`<div class="ord"><b>${esc(o.id)} · ${COP(o.total)}</b><p>${esc(o.name)} · ${esc(o.tel)} · ${esc(fdate(o.date))}</p><p>${esc(o.addr)}</p><p>${o.items.map(i=>esc(i.qty+' × '+i.name)).join(' · ')}</p><label class="fld">Estado<select data-chg="ostatus" data-id="${esc(o.id)}">${ST.map(s=>`<option ${o.status===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label><small>${esc(o.pay)} · ${esc(o.reservationState)}</small></div>`).join('')||'<p>Aún no hay pedidos confirmados.</p>'}</div>`;
   }
-  if (tab === 'ped') {
+  if (selectedTab === 'ped') {
     const now=new Date();
     const cy=now.getFullYear();
     let from,to,label;
@@ -169,21 +170,21 @@ async function renderTab() {
     </div>`).join('')||'<p>No hay clientes con compras aprobadas en este período.</p>'}</div>
     <p style="font-size:12px;color:var(--mut)">Exportar clientes no equivale a autorización para enviar campañas. Envía publicidad únicamente a contactos con consentimiento verificable. La descarga incluye datos personales: consérvala de forma segura.</p></div>`;
   }
-  if (tab === 'ban') {
+  if (selectedTab === 'ban') {
     const sl = await api('/admin/slides');
     window.__bannerSlides=sl;
     const promos = await api('/admin/side-promos');
     body = `<div class="panel"><div class="sec-h"><div><h3>Banners de la página principal</h3><p style="color:var(--mut);margin:6px 0 0">Edita cada promoción y comprueba su aspecto antes de guardar. No necesitas conocimientos técnicos.</p></div><a class="pill sm ghost" href="#">Ver tienda</a></div>
     <div class="banner-admin-list">${sl.map(slideMediaEditor).join('')}</div><h3 style="margin:28px 0 6px">Promociones debajo del banner</h3><p style="color:var(--mut);margin:0 0 16px">Estas dos promociones también se editan aquí. Cada una tiene su propio texto, destino y color.</p><div class="side-promo-admin">${promos.map((p,i)=>`<form class="side-promo-editor" data-form="sidepromo" data-index="${i}"><div class="side-promo-head"><b>Tarjeta ${i+1}</b><label class="banner-switch"><input type="checkbox" name="active" ${p.active?'checked':''}> Visible</label></div><div class="side-promo-preview mp mp-theme-${esc(p.theme)}"><small data-sp="eyebrow">${esc(p.eyebrow)}</small><h3 data-sp="title">${esc(p.title)}</h3><span data-sp="cta">${esc(p.cta)}</span></div><div class="banner-fields">${bannerMediaEditor(p)}${bannerDestinationFields(p)}<label class="fld">Texto pequeño<input name="eyebrow" maxlength="40" value="${esc(p.eyebrow)}"></label><label class="fld">Título de la tarjeta<input name="title" required maxlength="90" value="${esc(p.title)}"></label><label class="fld">Texto del enlace<input name="cta" required maxlength="40" value="${esc(p.cta)}"></label><label class="fld">¿Qué productos abre?<select name="category"><option value="">Todos los productos</option>${S.categories.map(c=>`<option value="${esc(c[0])}" ${c[0]===p.category?'selected':''}>${esc(c[0])}</option>`).join('')}</select></label><label class="fld">Color de la tarjeta<select name="theme">${[['morado','Rojo Galope'],['crema','Crema'],['rosa','Carbón'],['lavanda','Gris cálido']].map(([v,t])=>`<option value="${v}" ${p.theme===v?'selected':''}>${t}</option>`).join('')}</select></label><button class="pill pk">Guardar tarjeta ${i+1}</button></div></form>`).join('')}</div></div>`;
   }
-  if (tab === 'aju') {
+  if (selectedTab === 'aju') {
     const s = await api('/admin/settings');
     body = `<form class="panel" data-form="settings"><h3>Ajustes de la tienda</h3><div class="two"><label class="fld">Nombre<input name="name" maxlength="60" value="${esc(s.name)}"></label><label class="fld">WhatsApp (con indicativo, sin +)<input name="wa" inputmode="numeric" maxlength="15" value="${esc(s.wa)}"></label><input type="hidden" name="free" value="0"><label class="fld">Mensaje de la barra superior<input name="note" maxlength="160" value="${esc(s.note)}"></label></div>
 <h3 style="margin:22px 0 8px">¿Por qué comprar con nosotros? · Beneficios</h3><p style="color:var(--mut)">Activa los que realmente ofrece Galope. Puedes modificar su título, descripción e ícono. No anuncies contraentrega si no está habilitado.</p><div class="benefits-admin">${(s.benefits||[]).map((benefit)=>`<div class="benefit-admin-card"><label class="banner-switch"><input name="ben_active_${benefit.id}" type="checkbox" ${benefit.active?'checked':''}> Mostrar en la tienda</label><label class="fld">Título<input name="ben_title_${benefit.id}" value="${esc(benefit.title)}" maxlength="45" required></label><label class="fld">Descripción<input name="ben_desc_${benefit.id}" value="${esc(benefit.description)}" maxlength="95"></label><label class="fld">Ícono<select name="ben_icon_${benefit.id}">${[['truck','Camión / envío'],['credit-card','Tarjeta / pagos'],['heart-handshake','Atención'],['messages-square','Conversación'],['package-check','Paquete'],['shield-check','Seguridad'],['gift','Regalo'],['store','Tienda']].map(([id,name])=>`<option value="${id}" ${benefit.icon===id?'selected':''}>${name}</option>`).join('')}</select></label></div>`).join('')}</div>
 <h3 style="margin:20px 0 8px">Entrega y retiro de pedidos</h3><p style="color:var(--mut)">En el checkout se cobra solo el valor de los productos. Después de verificar el pago, un asesor cotiza el envío y comunica su valor al comprador para que lo acepte antes de despachar.</p><div class="two"><label class="fld"><span>Retiro en tienda · disponible</span><input name="pickupAddress" value="${esc(s.shipping?.pickupAddress||'')}" placeholder="Dirección y horario para recoger"></label><label class="fld"><span>Envío a domicilio · disponible</span><input name="carrier" value="${esc(s.shipping?.carrier||'')}" placeholder="Transportadora (ej. Coordinadora)"></label><input type="hidden" name="deliveryFee" value="0"><label class="fld">Tiempo estimado de entrega<input name="estimatedDays" value="${esc(s.shipping?.estimatedDays||'')}" placeholder="Ej. 2 a 5 días hábiles"></label></div><p style="color:var(--mut)"><b>Pagos:</b> Bold y Addi solo deben mostrarse como disponibles cuando se complete la integración oficial. No solicites tarjetas en este sitio.</p><h3 style="margin:18px 0 8px">Métodos de pago</h3>${s.pay.map((m) => `<div class="two" style="align-items:end"><label class="fld"><span><input type="checkbox" name="pon_${esc(m.id)}" ${m.on ? 'checked' : ''}> Activo</span><input name="pn_${esc(m.id)}" maxlength="60" value="${esc(m.name)}"></label><label class="fld">Instrucción para el cliente<input name="pd_${esc(m.id)}" maxlength="160" value="${esc(m.desc)}"></label></div>`).join('')}<button class="pill pk">Guardar ajustes</button></form>`;
     window.__payIds = s.pay.map((m) => m.id);
   }
-  if (tab === 'sus') {
+  if (selectedTab === 'sus') {
     const ss = await api('/admin/subscribers');
     const cd = await api('/admin/campaigns');
     const bs = await api('/admin/broadcast/summary');
@@ -197,12 +198,13 @@ async function renderTab() {
     <div class="club-stats">${['hombre','mujer'].map(w=>`<div style="text-align:left"><b style="font-size:16px">${w==='hombre'?'Hombre':'Mujer'}</b><small>${bs.worlds[w].add} para añadir · ${bs.worlds[w].remove} para retirar</small><div class="tools" style="margin-top:9px;flex-wrap:wrap"><button class="pill sm ghost" data-act="bdraft" data-arg="${w}:add" ${bs.worlds[w].add?'':'disabled'}>Preparar altas</button><button class="pill sm ghost" data-act="bdraft" data-arg="${w}:remove" ${bs.worlds[w].remove?'':'disabled'}>Preparar bajas</button></div></div>`).join('')}</div>
     ${bs.pendingBatches.length?`<h4 style="margin:16px 0 8px">Archivos pendientes de confirmar</h4>${bs.pendingBatches.map(b=>`<div class="club-campaign-row"><div><b>${b.world==='hombre'?'Hombre':'Mujer'} · ${b.operation==='add'?'Incorporar':'Retirar'}</b><br><small>${b.count} contactos · Lote #${b.id}</small></div><div class="tools"><a class="pill sm ghost" href="/api/admin/broadcast/batches/${b.id}.csv">Descargar CSV</a><button class="pill sm pk" data-act="bconfirm" data-arg="${b.id}">Confirmar gestión</button></div></div>`).join('')}`:''}
     <h3 style="margin-top:25px">Mensajería futura · API oficial</h3><div class="club-campaign-row"><div><b>Estado: ${messaging.configured?'Configurada':'Pendiente de conexión'}</b><br><small>${esc(messaging.reason)}</small><br><small>Las campañas se guardan como borradores. No hay cobros ni envíos en segundo plano.</small></div><div class="tools"><button class="pill sm ghost" disabled>Enviar campaña (próximamente)</button></div></div>
-    <h3 style="margin-top:25px">Nueva campaña (borrador)</h3><form data-form="campaign" class="club-campaign"><label class="fld">Nombre de la campaña<input name="name" required maxlength="80" placeholder="Ej. Novedades de noviembre"></label><label class="fld">Público<select name="audience"><option value="todos">Todos los autorizados</option><option value="hombre">Hombre</option><option value="mujer">Mujer</option><option value="unisex" ${p.world === 'unisex' ? 'selected' : ''}>Unisex</option></select></label><label class="fld">Mensaje para WhatsApp<textarea name="message" required minlength="5" maxlength="1200" rows="4" placeholder="Hola, tenemos nuevas novedades en Galope..."></textarea></label><div class="campaign-media-box"><div class="campaign-media-head"><div><b>Adjunto opcional</b><br><small>Puedes dejar la campaña lista con una imagen o un video para usarlo cuando se conecte WhatsApp oficialmente.</small></div><label class="pill sm ghost">Adjuntar archivo<input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" data-chg="campfile" hidden></label></div><div id="campaign-media-draft" class="campaign-media-draft">${campaignMediaPreview('', '')}</div></div><button class="pill pk">Guardar borrador</button></form>
+    <h3 style="margin-top:25px">Nueva campaña (borrador)</h3><form data-form="campaign" class="club-campaign"><label class="fld">Nombre de la campaña<input name="name" required maxlength="80" placeholder="Ej. Novedades de noviembre"></label><label class="fld">Público<select name="audience"><option value="todos">Todos los autorizados</option><option value="hombre">Hombre</option><option value="mujer">Mujer</option></select></label><label class="fld">Mensaje para WhatsApp<textarea name="message" required minlength="5" maxlength="1200" rows="4" placeholder="Hola, tenemos nuevas novedades en Galope..."></textarea></label><div class="campaign-media-box"><div class="campaign-media-head"><div><b>Adjunto opcional</b><br><small>Puedes dejar la campaña lista con una imagen o un video para usarlo cuando se conecte WhatsApp oficialmente.</small></div><label class="pill sm ghost">Adjuntar archivo<input type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" data-chg="campfile" hidden></label></div><div id="campaign-media-draft" class="campaign-media-draft">${campaignMediaPreview('', '')}</div></div><button class="pill pk">Guardar borrador</button></form>
     <h3 style="margin-top:25px">Campañas guardadas (${cd.campaigns.length})</h3>${cd.campaigns.map(c => `<div class="club-campaign-row club-campaign-row--media"><div><b>${esc(c.name)}</b> · ${c.audience === 'todos'?'Todos':c.audience==='hombre'?'Hombre':'Mujer'}<br><small>${esc(c.message)}</small><br><small>${campaignMediaLabel(c.media_kind)}${c.media_name ? ' · ' + esc(c.media_name) : ''}</small><br><small>Solo borrador · No enviado · <span data-preview-id="${c.id}" class="campaign-preview-label">Audiencia: consultar al abrir</span></small>${c.media_url ? `<div class="campaign-media-inline">${campaignMediaPreview(c.media_url, c.media_kind)}</div>` : ''}</div><div class="tools"><a class="pill sm ghost" href="/api/admin/campaigns/${c.id}/audience.csv">Exportar audiencia autorizada</a><button class="pill sm ghost" data-act="cdel" data-arg="${c.id}">Borrar</button></div></div>`).join('') || '<p style="color:var(--mut)">No hay campañas guardadas.</p>'}
     <h3 style="margin-top:25px">Suscriptores (${ss.length})</h3><div class="tools"><label>Mostrar <select id="sub-filter" data-chg="subfilter"><option value="todos">Todos</option><option value="active">Autorizados activos</option><option value="hombre">Interés Hombre</option><option value="mujer">Interés Mujer</option><option value="pending">Sin autorización</option><option value="unsubscribed">Baja solicitada</option></select></label><input id="sub-search" data-input="subsearch" placeholder="Buscar nombre o celular" aria-label="Buscar suscriptor"></div><div id="sub-list">${subscriberRows(ss)}</div></div>`;
     window.__clubSubscribers = ss;
     window.__campaignDraftMedia = null;
   }
+  if(renderRun!==adminRenderRun || location.hash!=='#admin')return;
   await adminShell(body);
 }
 
@@ -216,20 +218,6 @@ function campaignMediaPreview(mediaUrl, mediaKind) {
 }
 
 /* ---------- Productos ---------- */
-// Opciones en meses; se guarda el mismo número que utilizaba la base de datos.
-const AGE_OPTIONS = [0, 3, 6, 9, 12, 18, 24, 36, 48, 60, 72, 96, 120, 144, 180, 216];
-function ageLabel(months) {
-  if (months === 0) return 'Desde recién nacido (0 meses)';
-  if (months < 12) return `${months} meses`;
-  const years = months / 12;
-  return Number.isInteger(years) ? `${years} ${years === 1 ? 'año' : 'años'}` : `${Math.floor(years)} año${years >= 24 ? 's' : ''} y ${months % 12} meses`;
-}
-function ageSelect(name, value) {
-  const selected = Number(value);
-  // Respetar edades ya guardadas aunque no coincidan con los nuevos intervalos.
-  const options = AGE_OPTIONS.includes(selected) ? AGE_OPTIONS : [...AGE_OPTIONS, selected].sort((a,b) => a - b);
-  return `<select name="${name}" required>${options.map((age) => `<option value="${age}" ${age === selected ? 'selected' : ''}>${ageLabel(age)}</option>`).join('')}</select>`;
-}
 function pedit(id) {
   const p = id ? AP.find((x) => x.id === +id) : { name: '', cat: S.categories[0][0], categories: [S.categories[0][0]], world: 'hombre', ageMin: 0, ageMax: 36, price: '', old: '', stock: 0, badge: '', desc: '', emoji: '🤠', active: true, imgs: [], feats: [] };
   imgsD = [...p.imgs];
@@ -281,7 +269,7 @@ async function pdel(id) {
 
 /* ---------- Otros formularios ---------- */
 function slideMediaEditor(s,i) {
-  const original=s.bg==='photo'?'/img/play.webp':'/img/'+s.img+'.webp';
+  const original=s.bg==='photo'?'/img/club-galope.webp':'/img/'+s.img+'.webp';
   return `<form class="banner-editor" data-form="slide" data-id="${s.id}"><div class="banner-editor-top"><strong>Banner ${i+1}</strong><label class="banner-switch"><input type="checkbox" name="active" ${s.active?'checked':''}> Mostrar en la tienda</label></div><p class="banner-hint">Se muestra únicamente tu imagen o video. Incluye en el diseño los textos y el botón que quieras ver. La imagen completa enlaza al producto elegido.</p><div class="banner-editor-grid"><div>${bannerMediaEditor({...s,mediaFit:'artwork'},original)}</div><div class="banner-fields"><label class="fld">Nombre para identificar este banner<input name="title" required minlength="2" maxlength="90" value="${esc(s.title)}"><small>Este nombre no aparece sobre la imagen.</small></label>${bannerDestinationFields(s)}<label class="fld">Categoría alternativa si no eliges un producto<select name="cat"><option value="">Todos los productos</option>${S.categories.map(c=>`<option value="${esc(c[0])}" ${c[0]===s.cat?'selected':''}>${esc(c[0])}</option>`).join('')}</select></label><button class="pill pk" type="submit">Guardar banner ${i+1}</button></div></div></form>`;
 }
 
@@ -342,7 +330,7 @@ async function setStatus(sel) {
 async function sdel(tel) {
   try { await api('/admin/subscribers/' + encodeURIComponent(tel), { method: 'DELETE' }); await renderTab(); } catch (e) { toast(e.message); }
 }
-async function doLogout() { try { await api('/auth/logout', { method: 'POST' }); } catch { /* ya sin sesión */ } await admin(); }
+async function doLogout() { await api('/auth/logout', { method: 'POST' }); auth=null; await admin(); }
 
 /* Club Galope */
 function subscriberRows(rows) {
@@ -408,17 +396,17 @@ async function bconfirm(id) {
 let boldPaymentsBusy = false;
 function boldLoading(button, label) {
   if (!button) return () => {};
-  if (!document.getElementById('baby-bold-loading-style')) {
+  if (!document.getElementById('galope-bold-loading-style')) {
     const style=document.createElement('style');
-    style.id='baby-bold-loading-style';
-    style.textContent='@keyframes babyBoldSpin{to{transform:rotate(360deg)}} .baby-bold-spinner{display:inline-block;width:14px;height:14px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:babyBoldSpin .7s linear infinite}';
+    style.id='galope-bold-loading-style';
+    style.textContent='@keyframes galopeBoldSpin{to{transform:rotate(360deg)}} .galope-bold-spinner{display:inline-block;width:14px;height:14px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:galopeBoldSpin .7s linear infinite}';
     document.head.appendChild(style);
   }
   const original=button.innerHTML;
   button.disabled=true;
   button.setAttribute('aria-busy','true');
   button.style.cursor='wait';
-  button.innerHTML='<span class="baby-bold-spinner" aria-hidden="true"></span>'+label;
+  button.innerHTML='<span class="galope-bold-spinner" aria-hidden="true"></span>'+label;
   return () => {
     if(!button.isConnected) return;
     button.innerHTML=original;
@@ -464,20 +452,20 @@ async function verifyBoldAdminPayment(id) {
 document.addEventListener('input', event => {
   if (event.target?.id === 'customer-search') {
     customerSearch=event.target.value;
-    filterBabyCustomers();
+    filterGalopeCustomers();
   }
 });
 document.addEventListener('change', event => {
   if (event.target?.id === 'customer-filter') {
     customerSegment=event.target.value;
-    filterBabyCustomers();
+    filterGalopeCustomers();
   }
   if (event.target?.id === 'customer-month') {
     customerMonth=event.target.value;
     renderTab().catch(e=>toast(e.message));
   }
 });
-function filterBabyCustomers() {
+function filterGalopeCustomers() {
   const q=customerSearch.trim().toLocaleLowerCase('es-CO');
   let shown=0;
   document.querySelectorAll('.customer-record').forEach(node => {

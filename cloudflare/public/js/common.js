@@ -39,6 +39,7 @@ async function prepareImageForm(form, campaign, maxEdge=1200) {
 
 /* API */
 async function api(path, { method = 'GET', body, form, headers = {} } = {}) {
+  if(body===undefined && !form && !['GET','HEAD','OPTIONS'].includes(method.toUpperCase()))body={};
   const opt = { method, credentials: 'same-origin', headers: { 'X-Requested-With': 'galope', ...headers } };
   if (body !== undefined) { opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
   if (form) opt.body = await prepareImageForm(form,['/admin/campaign-media','/admin/banner-media'].includes(path),path==='/admin/banner-media'?1920:1200);

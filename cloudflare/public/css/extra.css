@@ -103,48 +103,15 @@ video.campaign-media-preview{object-fit:contain;background:#111}
 @media(max-width:640px){.campaign-media-head{align-items:stretch}.campaign-media-preview{width:100%;max-height:240px}}
 
 
-/* Galope: transición a pie de página en nubes, sin tocar estructura aprobada. */
-footer{
-  position:relative;
-  isolation:isolate;
-  margin-top:86px;
-  padding-top:49px;
-  background-color:#2a1745;
-  background-image:
-    radial-gradient(circle at 16% 31%,rgba(162,103,200,.12) 0 8px,transparent 9px),
-    radial-gradient(circle at 69% 71%,rgba(162,103,200,.10) 0 5px,transparent 6px),
-    radial-gradient(circle at 88% 22%,rgba(246,180,225,.08) 0 4px,transparent 5px),
-    linear-gradient(130deg,#2a1745,#392154 56%,#2a1745);
-  background-size:280px 190px,340px 230px,235px 175px,100% 100%;
-}
-footer::before{
-  content:"";
-  position:absolute;
-  left:0;right:0;
-  bottom:100%;
-  height:88px;
-  background:url('/img/footer-clouds.svg') center bottom/100% 100% no-repeat;
-  pointer-events:none;
-}
-footer .fg{position:relative;z-index:1}
-@media(max-width:600px){footer{margin-top:63px;padding-top:30px}footer::before{height:65px}}
-
 /* Club visual — dos edades, misma tarjeta y retícula; imágenes decorativas no interactivas. */
 .nl-club-visual{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 7% 83%,rgba(197,227,244,.34),transparent 40%),radial-gradient(ellipse at 94% 84%,rgba(251,207,223,.36),transparent 40%),var(--card)}
 .nl-club-visual::before,.nl-club-visual::after{content:"";position:absolute;width:205px;height:205px;border-radius:50%;z-index:-1;pointer-events:none}
 .nl-club-visual::before{left:-45px;bottom:-84px;background:rgba(212,233,245,.45)}
 .nl-club-visual::after{right:-35px;bottom:-98px;background:rgba(252,217,232,.47)}
-.nl-club-visual .club-child{position:absolute;bottom:8px;width:clamp(105px,11.5vw,190px);height:auto;max-height:275px;object-fit:contain;pointer-events:none;z-index:0;filter:drop-shadow(0 12px 20px rgba(70,35,80,.06));animation:club-float 7s ease-in-out infinite}
-.nl-club-visual .club-child-baby{left:8px}
-.nl-club-visual .club-child-mujer{right:8px;animation-delay:-3s}
 .nl-club-visual>h2,.nl-club-visual>p,.nl-club-visual>.club-form{position:relative;z-index:1}
 .nl-club-visual>.club-form{max-width:760px}
 @keyframes club-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media(max-width:1290px){.nl-club-visual .club-child{width:120px;opacity:.85}.nl-club-visual .club-child-baby{left:-27px}.nl-club-visual .club-child-mujer{right:-22px}.nl-club-visual>.club-form{max-width:680px}}
-@media(max-width:970px){.nl-club-visual .club-child{width:95px;opacity:.35}.nl-club-visual .club-child-baby{left:-25px}.nl-club-visual .club-child-mujer{right:-25px}}
-@media(max-width:700px){.nl-club-visual .club-child{display:none}.nl-club-visual{background:radial-gradient(ellipse at 0% 80%,rgba(197,227,244,.25),transparent 50%),radial-gradient(ellipse at 100% 80%,rgba(251,207,223,.27),transparent 50%),var(--card)}}
-@media(prefers-reduced-motion:reduce){.nl-club-visual .club-child{animation:none}}
-
+@media(max-width:1290px){@media(max-width:970px){@media(max-width:700px){@media(prefers-reduced-motion:reduce){
 /* Categoría transversal sin alterar jerarquía del menú aprobado */
 header.top .nav .nav-stim{color:var(--ink);font-weight:650}
 header.top .nav .nav-stim:hover{color:var(--rose)}

@@ -29,7 +29,7 @@ async function bodyRequest(request,max){
 }
 function security(response,secure,api){
  const r=new Response(response.body,response),h=r.headers;
- h.set('X-Galope-Release','bold-rejection-20261030.4');
+ h.set('X-Galope-Release','galope-admin-20261113.1');
  h.set('X-Content-Type-Options','nosniff');h.set('X-Frame-Options','DENY');h.set('Referrer-Policy','strict-origin-when-cross-origin');h.set('Cross-Origin-Opener-Policy','same-origin-allow-popups');h.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');
  if(secure)h.set('Strict-Transport-Security','max-age=31536000; includeSubDomains');
  h.set('Content-Security-Policy',"default-src 'self'; script-src 'self' https://checkout.bold.co https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://checkout.bold.co https://*.bold.co https://accounts.google.com/gsi/; frame-src https://checkout.bold.co https://*.bold.co https://accounts.google.com/gsi/; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"+(secure?'; upgrade-insecure-requests':''));
