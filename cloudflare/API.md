@@ -54,3 +54,7 @@ Las rutas siguientes conservan sus cuerpos/respuestas de la tienda original salv
 `POST /api/orders` continúa bloqueado: el flujo seguro es `/api/bold/start` y conciliación. Addi conserva la ruta pero no consulta ni inicia financiación. Sistecrédito no tiene endpoint de cobro. Las llamadas de actualización siguen los mismos límites de campos y validadores.
 
 `POST /api/bold/status` devuelve, únicamente al confirmar `PAID`, `items: [{id,q}]` de ese pedido autenticado. El cliente usa ese detalle verificado para retirar las unidades compradas; no toma la redirección ni mensajes del modal como comprobante de pago.
+
+## Pedido mientras Bold está pendiente
+
+`POST /api/orders` requiere `X-Requested-With: galope`, JSON e `Idempotency-Key` (16–100 caracteres). Recibe `name`, `tel`, `fulfillment` (`pickup` o `delivery`), `addr` (para domicilio) e `items: [{id,q}]`. El servidor determina precios y existencias, registra el pedido como `Nuevo` / `Pendiente de pago` y reserva durante 24 horas. Devuelve `id`, `total`, `paymentStatus: PENDING`, `reservedUntil` e `items`. Un reintento con la misma clave y contenido devuelve el mismo pedido; otro contenido o stock insuficiente devuelve 409. Disponible únicamente cuando Bold no está habilitado; no es un pago aprobado.

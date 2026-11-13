@@ -8,7 +8,7 @@ Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crem
 
 - Catálogo paginado de 12 productos por página, búsqueda con sugerencias, filtros por categoría y público (hombre, mujer, unisex), ofertas y favoritos. La búsqueda y los filtros consultan todo el catálogo; al cambiar de criterio se vuelve a la primera página.
 - Fichas de producto, hasta cuatro fotos, galería, zoom y enlaces compartibles.
-- Carrito persistente, recuperación de pagos, checkout Bold y conciliación de inventario en servidor.
+- Carrito persistente: agregar, cantidades, eliminar, entrega y pedidos pendientes de pago cuando Bold no está configurado; recuperación de pagos y conciliación de inventario en servidor.
 - Administración mediante Google: productos, existencias, pedidos y estados logísticos, clientes, ventas y exportaciones CSV.
 - Banners con imagen o video y archivo móvil, enlaces a productos, promociones secundarias y beneficios editables.
 - Club Galope con consentimiento, intereses hombre/mujer/ambos, bajas, campañas con adjuntos y lotes de difusión manuales.
@@ -44,6 +44,8 @@ La integración continua de GitHub ejecuta ambas comprobaciones al subir cambios
 ## Publicar más adelante
 
 Consulta [DESPLIEGUE.md](DESPLIEGUE.md). La configuración se llama `galope`, con una base D1 `galope` y un bucket R2 `galope-media`. El identificador de D1 ya corresponde al facilitado para Galope. Aún deben confirmarse el nombre real del bucket y los datos de acceso con Google antes de publicar. Utiliza únicamente los recursos de esta tienda.
+
+Mientras Bold no esté configurado, «Registrar pedido» guarda un pedido pendiente de pago en Administración → Pedidos. Los precios se calculan en el servidor; las existencias quedan reservadas durante 24 horas y se liberan al cancelar o vencer la reserva. Confirmar el pedido conserva la reserva sin volver a descontar. Estos pedidos no cuentan como ingresos cobrados. No se efectúan cobros ni se envían mensajes automáticos. Debe cargarse el stock real desde Administración → Productos.
 
 Bold conserva el flujo del proyecto original, pero necesita las llaves propias del comercio. Permanece en **sandbox** y sin llaves: el checkout no realiza cobros. Addi y Sistecrédito siguen pendientes como en el origen. Las campañas se preparan y exportan manualmente; no hay proveedor oficial de WhatsApp configurado.
 

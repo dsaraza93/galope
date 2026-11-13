@@ -220,3 +220,40 @@ describe('Devolución de stock por rechazo confirmado',()=>{
   const o=await checkout();rejectVoucher(o);await json('/bold/status',{method:'POST',body:o});expect(await stock()).toBe(30);await env.DB.prepare('UPDATE products SET stock=0 WHERE id=1').run();await sendEvent(await event(o));expect((await env.DB.prepare('SELECT status FROM bold_checkout_orders').first()).status).toBe('REVIEW');expect(await stock()).toBe(0);
  });
 });
+
+describe('Carrito y pedidos sin integración Bold',()=>{
+ const send=(body=payload(),key='pending-order-attempt-0001')=>worker.fetch(new Request('https://shop.example.test/api/orders',{method:'POST',headers:{'x-requested-with':'galope','content-type':'application/json','idempotency-key':key},body:JSON.stringify(body)}),{...env,BOLD_TEST_API_KEY:'',BOLD_TEST_SECRET_KEY:''});
+ it('registra el pedido pendiente con precios reales y lo muestra al administrador',async()=>{
+  const response=await send({...payload(),total:1,items:[{id:1,q:2,price:1}]});expect(response.status).toBe(201);
+  const order=await response.json();expect(order.id).toMatch(/^GAL-/);expect(order.total).toBe(129800);expect(order.paymentStatus).toBe('PENDING');expect(await stock()).toBe(28);
+  const orders=await json('/admin/orders',{admin:true});expect(orders[0].pay).toBe('Pendiente de pago');expect(orders[0].reservationState).toBe('reserved');expect(orders[0].items[0].qty).toBe(2);
+  expect((await env.DB.prepare('SELECT COUNT(*) n FROM bold_checkout_orders').first()).n).toBe(0);
+  expect((await json('/admin/summary?from=2026-11-01&to=2026-11-30',{admin:true})).todaySales).toBe(0);
+ });
+ it('reintentos simultáneos crean un solo pedido y una sola reserva',async()=>{
+  const responses=await Promise.all([send(),send()]);expect(responses.map(r=>r.status)).toEqual([201,201]);
+  const [a,b]=await Promise.all(responses.map(r=>r.json()));expect(a.id).toBe(b.id);expect(await stock()).toBe(29);
+  expect((await send({...payload(),name:'Otro comprador'})).status).toBe(409);
+ });
+ it('dos compradores no pueden reservar la misma última unidad',async()=>{
+  await env.DB.prepare('UPDATE products SET stock=1 WHERE id=1').run();
+  const responses=await Promise.all([send(payload(),'last-item-attempt-0001'),send(payload(),'last-item-attempt-0002')]);
+  expect(responses.map(r=>r.status).sort()).toEqual([201,409]);expect(await stock()).toBe(0);
+ });
+ it('rechaza cantidades inválidas, productos repetidos y productos agotados',async()=>{
+  for(const items of [[{id:1,q:0}],[{id:1,q:-1}],[{id:1,q:100}],[{id:1,q:1},{id:1,q:1}]])expect((await send({...payload(),items})).status).toBe(400);
+  await env.DB.prepare('UPDATE products SET stock=0 WHERE id=1').run();expect((await send()).status).toBe(409);
+  expect((await env.DB.prepare('SELECT COUNT(*) n FROM orders').first()).n).toBe(0);
+ });
+ it('cancelar o vencer una reserva devuelve existencias una sola vez',async()=>{
+  const order=await(await send()).json();await json('/admin/orders/'+order.id,{method:'PATCH',admin:true,body:{status:'Cancelado'}});expect(await stock()).toBe(30);
+  await json('/admin/orders/'+order.id,{method:'PATCH',admin:true,body:{status:'Cancelado'}});expect(await stock()).toBe(30);
+  const expired=await(await send(payload(),'expired-attempt-0001')).json();expect(await stock()).toBe(29);
+  await env.DB.prepare("UPDATE orders SET reserved_until=datetime('now','-1 minute') WHERE id=?").bind(expired.id).run();await json('/store');await json('/store');expect(await stock()).toBe(30);
+  expect((await send(payload(),'expired-attempt-0001')).status).toBe(409);
+ });
+ it('confirmar reserva conserva stock y Bold configurado conserva su flujo de pago',async()=>{
+  const order=await(await send()).json();await json('/admin/orders/'+order.id,{method:'PATCH',admin:true,body:{status:'Confirmado'}});expect(await stock()).toBe(29);
+  expect((await call('/orders',{method:'POST',body:payload(),headers:{'idempotency-key':'configured-bold-attempt'}})).status).toBe(409);
+ });
+});

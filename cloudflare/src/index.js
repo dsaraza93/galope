@@ -14,8 +14,8 @@ export function context(env){
  ctx.whatsAppProvider={status:()=>({provider:'none',configured:false,sendingEnabled:false,supportsBackgroundSending:false,supportsDeliveryReceipts:false,reason:'API oficial pendiente de configurar. No se enviará ningún mensaje.'})};return ctx;
 }
 async function limit(ctx,request,path){
- const ip=request.headers.get('CF-Connecting-IP')||'local';const group=path.startsWith('/api/bold/')?'bold':path==='/api/auth/google'?'login':path==='/api/subscribe'?'subscribe':'global';
- const max={bold:60,login:15,subscribe:10,global:600}[group],now=Date.now();
+ const ip=request.headers.get('CF-Connecting-IP')||'local';const group=path.startsWith('/api/bold/')?'bold':path==='/api/auth/google'?'login':path==='/api/subscribe'?'subscribe':path==='/api/orders'?'orders':'global';
+ const max={bold:60,login:15,subscribe:10,orders:12,global:600}[group],now=Date.now();
  const key=await sha(ip+':'+group+':'+Math.floor(now/900000));
  const row=await ctx.db.native.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=hits+1 RETURNING hits').bind(key,now+900000).first();
  if(row.hits>max)throw new HttpError(429,'Demasiadas solicitudes. Intenta más tarde.');

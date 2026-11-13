@@ -57,8 +57,9 @@ const A = {
   slide: (a) => slide(+a),
   setimg: (a) => { const [id, i] = a.split(':'); setImg(+id, +i); },
   vqc: (a) => { const [k, id] = a.split(':'); vqc(+k, +id); },
-  addview: (a) => { add(+a, vq); closeAll(); },
-  buynow: (a) => { add(+a, vq); closeAll(); drawer(); },
+  cartremove:a=>removeCartItem(+a),
+  addview: (a) => { if(add(+a,vq))closeAll(); },
+  buynow: (a) => { if(add(+a,vq)){closeAll();drawer();} },
   qty: (a) => { const [id, k] = a.split(':'); qty(+id, +k); },
   /* admin */
   tab: (a) => { tab = a; renderTab().catch((e) => toast(e.message)); },

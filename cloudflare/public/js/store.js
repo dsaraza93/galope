@@ -304,10 +304,11 @@ const paymentBadge = (label) => `<span class="pay-brand" title="${esc(label)}"><
 const paymentBadgesRow = (items, extra='') => `<div class="pay-badges ${extra}">${items.map(item=>paymentBadge(Array.isArray(item)?item[0]:item)).join('')}</div>`;
 
 function add(id, k = 1) {
-  const p = prod(id), l = cart.find((c) => c.id === p.id), have = l ? l.q : 0;
-  if (have + k > p.stock) return toast('Solo quedan ' + p.stock + ' unidades');
+  const p=prod(id);if(!p||!Number.isSafeInteger(k)||k<1)return false;
+  const l=cart.find(c=>c.id===p.id),have=l?l.q:0;
+  if(have+k>p.stock){toast('Solo quedan '+p.stock+' unidades');return false;}
   l ? (l.q += k) : cart.push({ id: p.id, q: k });
-  saveCart(); toast('Agregado al carrito'); upd();
+  saveCart(); toast('Agregado al carrito'); upd();return true;
 }
 
 function view(id) {
@@ -323,7 +324,7 @@ ${p.feats.length ? `<ul class="fl">${p.feats.map((f) => `<li>${esc(f)}</li>`).jo
 <p class="stk ${p.stock < 1 ? 'out' : ''}">${p.stock > 0 ? (p.stock <= 5 ? 'Quedan solo ' + p.stock + ' unidades' : 'Disponible') : 'Agotado'}</p>
 <div class="buy"><span class="qty big"><button data-act="vqc" data-arg="-1:${p.id}" aria-label="Menos">−</button><b id="vq">1</b><button data-act="vqc" data-arg="1:${p.id}" aria-label="Más">+</button></span><button class="btn" ${p.stock < 1 ? 'disabled' : ''} data-act="addview" data-arg="${p.id}">Agregar al carrito</button></div>
 <button class="lnk" ${p.stock < 1 ? 'disabled' : ''} data-act="buynow" data-arg="${p.id}">Comprar ahora</button>
-<div class="pol payment-pol"><div class="pol-title">Medios de pago</div>${paymentBadgesRow([['Visa','visa'],['Mastercard','mastercard'],['PSE','pse'],['Nequi','nequi'],['Addi','addi'],['Sistecrédito','sistecredito']], 'in-modal compact-strip')}</div></div></div>`;
+<div class="pol payment-pol"><div class="pol-title">${S.settings.checkoutReady?'Medios de pago':'Tu pedido con Galope'}</div>${S.settings.checkoutReady?paymentBadgesRow([['Visa','visa'],['Mastercard','mastercard'],['PSE','pse'],['Nequi','nequi']], 'in-modal compact-strip'):'<p>Registra tu pedido y coordinaremos contigo el pago y la entrega.</p>'}</div></div></div>`;
   const g = $('#gm');
   g.addEventListener('mousemove', (e) => { const r = g.getBoundingClientRect(); g.style.setProperty('--zx', (e.clientX - r.left) / r.width * 100 + '%'); g.style.setProperty('--zy', (e.clientY - r.top) / r.height * 100 + '%'); });
   openPanel($('#modal'));
@@ -347,13 +348,13 @@ function drawer({refreshOnly=false} = {}) {
 ${readPendingBold() ? '<div class="payment-verification" role="status"><b>Tu pago está en verificación</b><span>No repitas la compra hasta confirmar el resultado.</span><button type="button" class="pill sm ghost" data-act="verifypayment">Consultar estado del pago</button></div>' : ''}
 <div class="list">${items.length ? items.map((c) => {
     const p = prod(c.id);
-    return `<div class="line"><div class="mini" style="--t:${tint(p)}">${vis(p)}</div><div><b>${esc(p.name)}</b><br><span class="qty"><button data-act="qty" data-arg="${p.id}:-1" aria-label="Menos">−</button>${c.q}<button data-act="qty" data-arg="${p.id}:1" aria-label="Más">+</button></span></div><b>${COP(p.price * c.q)}</b></div>`;
+    return `<div class="line"><div class="mini" style="--t:${tint(p)}">${vis(p)}</div><div><b>${esc(p.name)}</b><br><span class="qty"><button data-act="qty" data-arg="${p.id}:-1" aria-label="Menos">−</button>${c.q}<button data-act="qty" data-arg="${p.id}:1" aria-label="Más">+</button></span><button type="button" class="lnk cart-remove" data-act="cartremove" data-arg="${p.id}" aria-label="Quitar ${esc(p.name)} del carrito">Eliminar</button></div><b>${COP(p.price * c.q)}</b></div>`;
   }).join('') : '<div class="empty">Tu carrito está vacío. Encuentra tu próximo favorito llanero.</div>'}</div>
-${items.length ? `<form id="co" data-form="order"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="checkout-section"><h3>Datos del comprador</h3><div class="checkout-fields-pair"><label class="fld">Nombre completo<input name="n" required minlength="2" maxlength="80" autocomplete="name" placeholder="Nombre y apellidos"></label><label class="fld">Celular<input name="t" type="tel" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Número de contacto"></label></div><div class="checkout-fields-pair"><label class="fld">Tipo de documento<select name="documentType" required><option value="CC">Cédula de ciudadanía</option><option value="CE">Cédula de extranjería</option><option value="NIT">NIT</option><option value="PA">Pasaporte</option><option value="TI">Tarjeta de identidad</option></select></label><label class="fld">Número de documento<input name="documentNumber" required minlength="5" maxlength="20" autocomplete="off" placeholder="Sin puntos ni espacios" pattern="(?:[A-Za-z0-9]|-){5,20}" title="Entre 5 y 20 caracteres, letras, números o guion"></label></div></div><div class="checkout-section"><h3>Entrega</h3><fieldset class="checkout-fulfillment"><legend>¿Cómo quieres recibir tu compra?</legend><label><input type="radio" name="fulfillment" value="pickup" checked> <b>Retiro en tienda</b><small>Sin costo · ${esc(logistics.pickupAddress||'Consulta la dirección con la tienda')}</small></label><label><input type="radio" name="fulfillment" value="delivery"> <b>Envío a domicilio</b><small>Valor del transporte por cotizar, según la transportadora</small></label></fieldset><p id="checkout-shipping-note" class="checkout-shipping-note" hidden><b>Importante sobre el envío:</b> este pago cubre únicamente los productos. Una vez se confirme el pago, un asesor se comunicará contigo para informarte el costo del envío y coordinar la entrega. El envío se paga por separado y solo con tu aceptación.</p>
+${items.length ? `<form id="co" data-form="order"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="checkout-section"><h3>Datos del comprador</h3><div class="checkout-fields-pair"><label class="fld">Nombre completo<input name="n" required minlength="2" maxlength="80" autocomplete="name" placeholder="Nombre y apellidos"></label><label class="fld">Celular<input name="t" type="tel" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Número de contacto"></label></div>${S.settings.checkoutReady?`<div class="checkout-fields-pair"><label class="fld">Tipo de documento<select name="documentType" required><option value="CC">Cédula de ciudadanía</option><option value="CE">Cédula de extranjería</option><option value="NIT">NIT</option><option value="PA">Pasaporte</option><option value="TI">Tarjeta de identidad</option></select></label><label class="fld">Número de documento<input name="documentNumber" required minlength="5" maxlength="20" autocomplete="off" placeholder="Sin puntos ni espacios" pattern="(?:[A-Za-z0-9]|-){5,20}" title="Entre 5 y 20 caracteres, letras, números o guion"></label></div>`:''}</div><div class="checkout-section"><h3>Entrega</h3><fieldset class="checkout-fulfillment"><legend>¿Cómo quieres recibir tu compra?</legend><label><input type="radio" name="fulfillment" value="pickup" checked> <b>Retiro en tienda</b><small>Sin costo · ${esc(logistics.pickupAddress||'Consulta la dirección con la tienda')}</small></label><label><input type="radio" name="fulfillment" value="delivery"> <b>Envío a domicilio</b><small>Valor del transporte por cotizar, según la transportadora</small></label></fieldset><p id="checkout-shipping-note" class="checkout-shipping-note" hidden><b>Importante sobre el envío:</b> el total corresponde únicamente a los productos. Un asesor te informará el costo del envío y coordinará la entrega. El envío se paga por separado y solo con tu aceptación.</p>
 <div class="checkout-delivery-fields" hidden><div class="fld"><input name="d" minlength="5" maxlength="200" autocomplete="street-address" placeholder="Dirección de entrega" aria-label="Dirección"></div><label class="fld">Ciudad<input name="city" maxlength="90" autocomplete="address-level2" placeholder="Ej. Villavicencio"></label><label class="fld">Departamento<input name="region" maxlength="90" autocomplete="address-level1" placeholder="Ej. Meta"></label><div class="fld"><input name="detail" maxlength="120" placeholder="Apartamento, barrio o indicaciones (opcional)"></div></div>
-</div><div class="checkout-section"><fieldset class="pay"><legend>Elige cómo pagar</legend><label class="checkout-payment-choice"><input type="radio" checked name="gateway" value="gateway"> <b>Tarjetas, PSE y otros métodos</b>${paymentBadgesRow([['Visa','visa'],['Mastercard','mastercard'],['PSE','pse'],['Nequi','nequi']], 'in-checkout compact-strip')}</label><label class="checkout-payment-choice" style="opacity:.62"><input type="radio" name="gateway" value="addi" disabled> <b>Addi · Compra a cuotas (próximamente)</b>${paymentBadgesRow([['Addi','addi']], 'in-checkout single compact-strip')}</label><label class="checkout-payment-choice" style="opacity:.62"><input type="radio" name="gateway" value="sistecredito" disabled> <b>Sistecrédito (próximamente)</b>${paymentBadgesRow([['Sistecrédito','sistecredito']], 'in-checkout single compact-strip')}</label></fieldset></div><div class="checkout-section checkout-summary"><h3>Resumen de compra</h3>
-<div class="checkout-total"><span>Subtotal de productos</span><b>${COP(t)}</b></div><div class="checkout-total"><span>Envío</span><b id="checkout-shipping">Por cotizar</b></div><div class="checkout-total checkout-grand"><span>Total a pagar ahora</span><span id="checkout-total">${COP(t)}</span></div>${window.BCAddi?.markup(t) || ''}
-<button class="pill pk" style="width:100%;margin-top:10px;padding:14px">Comprar</button></div></form>` : ''}`;
+</div><div class="checkout-section">${S.settings.checkoutReady?`<fieldset class="pay"><legend>Elige cómo pagar</legend><label class="checkout-payment-choice"><input type="radio" checked name="gateway" value="gateway"> <b>Tarjetas, PSE y otros métodos</b>${paymentBadgesRow([['Visa','visa'],['Mastercard','mastercard'],['PSE','pse'],['Nequi','nequi']], 'in-checkout compact-strip')}</label><label class="checkout-payment-choice" style="opacity:.62"><input type="radio" name="gateway" value="addi" disabled> <b>Addi · Compra a cuotas (próximamente)</b>${paymentBadgesRow([['Addi','addi']], 'in-checkout single compact-strip')}</label><label class="checkout-payment-choice" style="opacity:.62"><input type="radio" name="gateway" value="sistecredito" disabled> <b>Sistecrédito (próximamente)</b>${paymentBadgesRow([['Sistecrédito','sistecredito']], 'in-checkout single compact-strip')}</label></fieldset>`:'<div class="checkout-pending-note"><b>Pedido pendiente de pago</b><p>Registra tu pedido y Galope te contactará para coordinar el pago y la entrega. No se realizará ningún cobro en línea.</p></div>'}</div><div class="checkout-section checkout-summary"><h3>Resumen de compra</h3>
+<div class="checkout-total"><span>Subtotal de productos</span><b>${COP(t)}</b></div><div class="checkout-total"><span>Envío</span><b id="checkout-shipping">Por cotizar</b></div><div class="checkout-total checkout-grand"><span>${S.settings.checkoutReady?'Total a pagar ahora':'Total de productos'}</span><span id="checkout-total">${COP(t)}</span></div>${window.BCAddi?.markup(t) || ''}
+<button class="pill pk" style="width:100%;margin-top:10px;padding:14px" type="submit">${S.settings.checkoutReady?'Pagar con Bold':'Registrar pedido'}</button></div></form>` : ''}`;
   const f = $('#co');
   if (f) Object.entries(keep).forEach(([k, v]) => { const el = f.elements[k]; if (!el) return; if (el.type === undefined) [...el].forEach((r) => { r.checked = r.value === v; }); else el.value = v; });
   if (f) {
@@ -373,17 +374,20 @@ ${items.length ? `<form id="co" data-form="order"><input class="hp" name="websit
   window.BCAddi?.activate();
 }
 function qty(id, k) {
-  const c = cart.find((x) => x.id === +id), p = prod(id);
+  const c=cart.find(x=>x.id===+id),p=prod(id);if(!c||!p)return;
   if (c.q + k > p.stock) return toast('Solo quedan ' + p.stock + ' unidades');
   c.q += k; if (c.q < 1) cart = cart.filter((x) => x !== c);
   saveCart(); upd(); drawer();
 }
+
+function removeCartItem(id){cart=cart.filter(c=>c.id!==+id);saveCart();upd();drawer();}
 
 async function submitOrder(form, btn) {
   if(readPendingBold()){
     await checkBoldReturn({quiet:false,restart:true});
     if(readPendingBold() || !cart.length)return;
   }
+  if(!S.settings.checkoutReady)return submitPendingOrder(form,btn);
   const f=new FormData(form);
   if(f.get('gateway')==='addi') return toast('Selecciona tarjetas, PSE u otro método disponible.');
   const fulfillment=f.get('fulfillment')||'delivery';
@@ -442,3 +446,20 @@ async function submitSubscribe(form, btn) {
 const waGeneral = () => openWA('https://wa.me/' + S.settings.wa + '?text=' + encodeURIComponent('Hola, quisiera información sobre sus productos'));
 
 matchMedia('(max-width:820px)').addEventListener('change',()=>{if(document.querySelector('#bn'))slide(si);});
+
+
+async function submitPendingOrder(form,btn){
+ const f=new FormData(form),fulfillment=f.get('fulfillment')||'pickup';
+ const items=cart.map(c=>({id:c.id,q:c.q}));
+ const body={name:f.get('n'),tel:f.get('t'),fulfillment,addr:fulfillment==='pickup'?'Retiro en tienda':[f.get('d'),f.get('city'),f.get('region'),f.get('detail')].filter(Boolean).join(', '),items};
+ const intent=JSON.stringify(body);
+ await busy(btn,async()=>{
+  let attempt;try{attempt=JSON.parse(sessionStorage.getItem('galope_order_attempt')||'null');}catch{}
+  if(!attempt||attempt.intent!==intent){attempt={intent,key:crypto.randomUUID()};sessionStorage.setItem('galope_order_attempt',JSON.stringify(attempt));}
+  const order=await api('/orders',{method:'POST',headers:{'Idempotency-Key':attempt.key},body});
+  cart=removePurchasedItems(lsGet('galope_cart',cart),order.items||items);saveCart();upd();sessionStorage.removeItem('galope_order_attempt');
+  $('#drawer').innerHTML=`<div class="drawer-head"><h2>Pedido registrado</h2><button class="x" data-act="close" aria-label="Cerrar">✕</button></div><div class="order-confirmation" role="status"><span class="order-confirmation-mark" aria-hidden="true">✓</span><h3>Gracias por elegir Galope</h3><p>Tu pedido <strong>${esc(order.id)}</strong> quedó registrado y pendiente de pago.</p><div class="checkout-total"><span>Total de productos</span><b>${COP(order.total)}</b></div><p>No se ha realizado ningún cobro. Te contactaremos al ${esc(body.tel)} para coordinar el pago y la entrega.</p><p class="order-reservation-note">Los productos quedan reservados durante 24 horas. El envío a domicilio se cotiza por separado.</p><button type="button" class="pill pk" data-act="close">Seguir comprando</button></div>`;
+  openPanel($('#drawer'));
+  await loadStore().catch(()=>{});if($('#grid'))renderGrid();upd();
+ });
+}

@@ -12,10 +12,11 @@ try{
   await page.addInitScript(()=>{window.BoldCheckout=class {open(){window.checkoutOpened=true;}};});
   await page.route('**/api/bold/start',async route=>{starts++;purchased=route.request().postDataJSON().items;await route.fulfill({json:{orderId,orderToken,currency:'COP',amount:'119900',apiKey:'fixture',integritySignature:'fixture',mode:'sandbox'}});});
   await page.route('**/api/bold/status',async route=>{checks++;await route.fulfill({json:{orderId,status:approved?'PAID':rejected?'REJECTED':'PENDING',...(approved?{items:purchased}:{}),...(rejected?{rejectionConfirmed:true,stockReleased:true}:{})}});});
+  await page.route('**/api/store',async route=>{const response=await route.fetch();const store=await response.json();store.settings.checkoutReady=true;await route.fulfill({json:store});});
   await page.goto(base);await page.waitForSelector('.pc');
   await page.locator('.pc [data-act="add"]').first().click();
   await page.locator('header [data-act="cart"]').click();
-  await page.locator('#co [name="n"]').fill('Cliente de prueba');await page.locator('#co [name="t"]').fill('573001234567');await page.locator('#co [name="documentNumber"]').fill('12345678');await page.locator('#co [name="d"]').fill('Calle de prueba 123');
+  await page.locator('#co [name="n"]').fill('Cliente de prueba');await page.locator('#co [name="t"]').fill('573001234567');await page.locator('#co [name="documentNumber"]').fill('12345678');await page.locator('#co [name=fulfillment][value=delivery]').check();await page.locator('#co [name="d"]').fill('Calle de prueba 123');
   await page.locator('#co button[type="submit"],#co .checkout-summary>.pill').click();
   await page.waitForFunction(()=>window.checkoutOpened===true);await page.waitForFunction(()=>!!localStorage.getItem('galope_pending_bold'));
   await page.evaluate(()=>checkBoldReturn({quiet:true}));assert.ok(checks>=1);assert.equal(starts,1);
@@ -27,7 +28,7 @@ try{
   // even if the reserved product currently has zero free stock.
   await page.evaluate(({orderId,orderToken,purchased})=>{localStorage.setItem('galope_cart',JSON.stringify(purchased));localStorage.removeItem('galope_paid_orders');sessionStorage.setItem('galope_pending_bold',JSON.stringify({orderId,orderToken}));}, {orderId,orderToken,purchased});
   approved=false;
-  await page.route('**/api/store',async route=>{const response=await route.fetch();const store=await response.json();for(const p of store.products)if(purchased.some(i=>i.id===p.id))p.stock=0;await route.fulfill({json:store});});
+  await page.route('**/api/store',async route=>{const response=await route.fetch();const store=await response.json();store.settings.checkoutReady=true;for(const p of store.products)if(purchased.some(i=>i.id===p.id))p.stock=0;await route.fulfill({json:store});});
   await page.reload();await page.waitForSelector('.pc');await page.evaluate(()=>checkBoldReturn({quiet:true}));
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('galope_cart')).length),1);
   approved=true;await page.evaluate(()=>checkBoldReturn({quiet:true}));assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('galope_cart')).length),0);

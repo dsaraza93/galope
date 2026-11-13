@@ -1,3 +1,4 @@
+import {createPendingOrder} from './orders.js';
 import {Router} from './router.js';
 import {HttpError,v} from './http.js';
 export function publicRouter(ctx){
@@ -7,7 +8,7 @@ export function publicRouter(ctx){
   await expireReservations();const s=await getSettings();const bold=payments.settings();
   res.json({settings:{name:s.name,wa:s.wa,free:0,note:(s.pay||[]).some(m=>m.id==='cod'&&m.on)?s.note:String(s.note||'').replace(/\s*[·|–-]\s*Pago contraentrega/gi,''),benefits:s.benefits,pay:[],paymentProvider:'Bold',checkoutReady:bold.enabled,shipping:{...(s.shipping||{}),pickupEnabled:true,deliveryEnabled:true,deliveryFee:0}},sidePromos:await getSidePromos(),categories:cfg.categories,products:(await db.prepare('SELECT * FROM products WHERE active=1 ORDER BY id DESC').all()).map(productOut).map(({active,...p})=>p),slides:(await db.prepare('SELECT * FROM slides WHERE active=1 ORDER BY pos,id').all()).map(slideOut).map(({active,...s})=>s)});
  });
- router.post('/orders',()=>{throw new HttpError(503,'Usa el checkout Bold para confirmar un pago seguro. No se ha realizado ningún cobro.');});
+ router.post('/orders',async(req,res)=>{await expireReservations();res.status(201).json(await createPendingOrder(ctx,req.body||{},req));});
  router.post('/subscribe',async(req,res)=>{
   const b=req.body||{};if(b.website)return res.status(201).json({ok:true});
   const tel=v.str(b.tel,'Celular',{min:7,max:20}).replace(/[^\d+]/g,'');if(!/^\+?\d{7,15}$/.test(tel))throw new HttpError(400,'Celular no válido');

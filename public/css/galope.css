@@ -108,3 +108,8 @@ footer.galope-footer .footer-admin{margin-top:12px;font-size:12px;color:#b9b2aa}
 @media(max-width:510px){#trust-track>.trust-benefit{flex:0 0 86%;padding:20px 17px;min-height:126px}.trust-horizontal[data-benefits="1"] #trust-track>.trust-benefit{flex-basis:100%}.trust-horizontal .trust-cloud-sub{font-size:13px}#trust-track .trust-benefit-copy b{font-size:17px}}
 @media(max-width:360px){.store-page #cats .cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){#trust-track>.trust-benefit:hover{transform:none}}
+
+/* Carrito: registro del pedido mientras se habilita el pago en línea. */
+.cart-remove{display:block;font-size:12px;margin-top:7px;color:#a81720}
+.checkout-pending-note{padding:16px;border:1px solid #e5d8c8;background:#fbf5ee;border-radius:14px;color:#54483b;font-size:14px;line-height:1.6}.checkout-pending-note p{margin:8px 0 0}
+.order-confirmation{padding:24px 0;line-height:1.65}.order-confirmation h3{font-size:26px;margin:16px 0}.order-confirmation-mark{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#edf6ed;color:#23733b;font-size:30px}.order-confirmation strong{overflow-wrap:anywhere}.order-reservation-note{font-size:13px;color:var(--mut)}.order-confirmation .pill{width:100%;margin-top:16px}

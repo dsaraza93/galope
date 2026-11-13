@@ -48,7 +48,7 @@ async function api(path, { method = 'GET', body, form, headers = {} } = {}) {
   let data = null;
   try { data = await r.json(); } catch { /* sin cuerpo */ }
   if (!r.ok) {
-    if(path==='/bold/start' && r.status===409)sessionStorage.removeItem('galope_checkout_attempt');
+    if(r.status===409){try{if(path==='/bold/start')sessionStorage.removeItem('galope_checkout_attempt');if(path==='/orders')sessionStorage.removeItem('galope_order_attempt');}catch{}}
     const e = new Error((data && data.error) || 'Error ' + r.status);
     e.status = r.status;
     throw e;

@@ -37,10 +37,18 @@ router.get('/store', (req, res) => {
 /* ---------- Crear pedido ---------- */
 // IMPORTANTE: el cliente solo envía ids y cantidades. Precios, totales y envío
 // se calculan aquí con los datos de la base; nunca se confía en lo que manda el navegador.
+db.exec('CREATE TABLE IF NOT EXISTS order_request_keys (key TEXT PRIMARY KEY,request_hash TEXT NOT NULL,order_id TEXT NOT NULL)');
 const createOrder = db.transaction((input) => {
   const s = getSettings();
-  const method = s.pay.find((m) => m.on && m.id === input.pm);
-  if (!method) throw new HttpError(400, 'Elige un método de pago válido');
+  const method={id:'pending',name:'Pendiente de pago'};
+  const prior=db.prepare('SELECT * FROM order_request_keys WHERE key=?').get(input.key);
+  if(prior){
+    if(prior.request_hash!==input.hash)throw new HttpError(409,'Este intento corresponde a otro pedido');
+    const order=db.prepare('SELECT * FROM orders WHERE id=?').get(prior.order_id);
+    if(!order||order.status==='Cancelado')throw new HttpError(409,'La reserva terminó. Inicia un nuevo pedido.');
+    const lines=db.prepare('SELECT product_id AS id,name,price,qty AS q FROM order_items WHERE order_id=?').all(order.id);
+    return {id:order.id,lines,subtotal:order.subtotal,freeShipping:false,method,store:s,reservedUntil:order.reserved_until};
+  }
 
   const getP = db.prepare('SELECT * FROM products WHERE id=? AND active=1');
   const dec = db.prepare('UPDATE products SET stock=stock-?, updated_at=datetime(\'now\') WHERE id=? AND stock>=?');
@@ -54,28 +62,29 @@ const createOrder = db.transaction((input) => {
     lines.push({ id: p.id, name: p.name, price: p.price, q: it.q });
     subtotal += p.price * it.q;
   }
+  if(!Number.isSafeInteger(subtotal)||subtotal<1)throw new HttpError(400,'Importe no válido');
   const freeShipping = 0; // Ningún pedido promete transporte gratuito; se cotiza por separado.
-  const id = 'BC-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const id = 'GAL-' + crypto.randomBytes(10).toString('hex').toUpperCase();
 
   db.prepare(`INSERT INTO orders(id,name,tel,addr,pay_id,pay_name,subtotal,free_shipping,total,reservation_state,reserved_until)
               VALUES (?,?,?,?,?,?,?,?,?,'reserved',datetime('now', '+' || ? || ' hours'))`)
-    .run(id, input.name, input.tel, input.addr, method.id, method.name, subtotal, freeShipping, subtotal, cfg.reservationHours);
+    .run(id, input.name, input.tel, input.addr, method.id, method.name, subtotal, freeShipping, subtotal, 24);
   const insItem = db.prepare('INSERT INTO order_items(order_id,product_id,name,price,qty) VALUES (?,?,?,?,?)');
   lines.forEach((l) => insItem.run(id, l.id, l.name, l.price, l.q));
 
-  return { id, lines, subtotal, freeShipping: !!freeShipping, method, store: s };
+  db.prepare('INSERT INTO order_request_keys(key,request_hash,order_id) VALUES(?,?,?)').run(input.key,input.hash,id);
+  return {id,lines,subtotal,freeShipping:!!freeShipping,method,store:s,reservedUntil:db.prepare('SELECT reserved_until FROM orders WHERE id=?').get(id).reserved_until};
 });
 
 router.post('/orders', limiter(12, 60, 'Demasiados pedidos desde esta conexión. Intenta más tarde.'), (req, res) => {
-  // La creación de pedidos se bloquea hasta implementar y verificar el cobro Bold.
-  // Nunca registrar una compra como pagada con solo pulsar el botón.
-  throw new HttpError(503, 'El pago en línea aún no está habilitado. La tienda no ha realizado ningún cobro.');
-  const b = req.body || {};
-  if (b.website) return res.status(201).json({ id: 'BC-00000000', total: 0 }); // honeypot anti-bots
+  const b=req.body||{};
+  const key=String(req.get('idempotency-key')||'');
+  if(!/^[a-zA-Z0-9_-]{16,100}$/.test(key))throw new HttpError(400,'Se requiere Idempotency-Key');
   const name = v.str(b.name, 'Nombre', { min: 2, max: 80 });
   const tel = v.str(b.tel, 'Celular', { min: 7, max: 20 }).replace(/[^\d+]/g, '');
   if (!/^\+?\d{7,15}$/.test(tel)) throw new HttpError(400, 'Celular no válido');
-  const addr = v.str(b.addr, 'Dirección', { min: 5, max: 200 });
+  const fulfillment=v.oneOf(b.fulfillment,['pickup','delivery'],'Entrega');
+  const addr=fulfillment==='pickup'?'Retiro en tienda':v.str(b.addr,'Dirección',{min:5,max:250});
   if (!Array.isArray(b.items) || b.items.length < 1 || b.items.length > 30) throw new HttpError(400, 'Tu carrito está vacío');
   const seen = new Set();
   const items = b.items.map((i) => {
@@ -86,7 +95,9 @@ router.post('/orders', limiter(12, 60, 'Demasiados pedidos desde esta conexión.
   });
 
   expireReservations();
-  const r = createOrder({ name, tel, addr, pm: String(b.pm || ''), items });
+  items.sort((a,b)=>a.id-b.id);
+  const hash=crypto.createHash('sha256').update(JSON.stringify({name,tel,addr,fulfillment,items})).digest('hex');
+  const r=createOrder({name,tel,addr,items,key,hash});
   const msg =
     `Hola ${clean(r.store.name)}, quiero hacer el pedido ${r.id}:\n` +
     r.lines.map((l) => `• ${l.q} x ${clean(l.name)} — ${COP(l.price * l.q)}`).join('\n') +
@@ -94,7 +105,7 @@ router.post('/orders', limiter(12, 60, 'Demasiados pedidos desde esta conexión.
     `\nNombre: ${name}\nCelular: ${tel}\nDirección: ${addr}\nMétodo de pago: ${r.method.name}` +
     (r.method.id === 'cod' ? '' : '\nQuedo atento(a) a los datos para pagar.');
   res.status(201).json({
-    id: r.id, total: r.subtotal, freeShipping: r.freeShipping, reservationHours: cfg.reservationHours,
+    id:r.id,total:r.subtotal,status:'Nuevo',paymentStatus:'PENDING',items:r.lines.map(({id,q})=>({id,q})),reservedUntil:r.reservedUntil,reservationHours:24,
     waUrl: `https://wa.me/${r.store.wa}?text=${encodeURIComponent(msg)}`,
   });
 });
