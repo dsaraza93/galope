@@ -51,8 +51,8 @@ function loginError(message){const target=$('#lerr');if(location.hash==='#admin'
 async function showLogin() {
   if(location.hash!=='#admin')return;
   $('#app').innerHTML=`<header class="top admin-header"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
-<div class="login galope-login"><h2>Galope · Administración</h2><p>Inicia sesión con <strong>galopegalope44@gmail.com</strong> para administrar tu empresa.</p><div id="gbtn" aria-label="Iniciar sesión con Google"></div><p class="err" id="lerr" role="alert"></p><button type="button" class="pill sm ghost" data-act="admin">Reintentar acceso</button><details class="login-config"><summary>¿Google muestra «origin_mismatch»?</summary><p>En el cliente OAuth de Google Cloud, añade este origen exacto a los <strong>Orígenes autorizados de JavaScript</strong>:</p><code>${esc(location.origin)}</code><p>Utiliza el cliente <code>${esc(auth.googleClientId||'Pendiente de configurar')}</code>. Guarda el cambio en Google Cloud y vuelve a intentar el acceso.</p><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Abrir configuración de Google</a></details></div>`;
-  if(!auth.googleClientId){loginError('El acceso administrador está pendiente de configurar: falta GOOGLE_CLIENT_ID en Cloudflare.');return;}
+<div class="login galope-login"><h2>Galope · Administración</h2><p>Inicia sesión con <strong>galopegalope44@gmail.com</strong> para administrar tu empresa.</p><div id="gbtn" aria-label="Iniciar sesión con Google"></div><p class="err" id="lerr" role="alert"></p></div>`;
+  if(!auth.googleClientId){loginError('El acceso no está disponible en este momento. Contacta al responsable de la tienda.');return;}
   try {
     await loadGoogle();if(location.hash!=='#admin'||!$('#gbtn'))return;
     google.accounts.id.initialize({client_id:auth.googleClientId,login_hint:'galopegalope44@gmail.com',auto_select:false,callback:async resp=>{
