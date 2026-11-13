@@ -80,3 +80,31 @@ footer.galope-footer .footer-admin{margin-top:12px;font-size:12px;color:#b9b2aa}
 .catalog-page-button:hover:not(:disabled){background:#f5eee5;border-color:#cbbba8}.catalog-page-button.current{background:#d7202a;border-color:#d7202a;color:#fff}.catalog-page-button.current:hover{background:#a8171f;border-color:#a8171f}.catalog-page-button:disabled{opacity:.4;cursor:not-allowed}.catalog-page-button:focus-visible{outline:3px solid #d7202a55;outline-offset:3px}.catalog-page-gap{color:#928574;padding:0 3px;min-width:14px;text-align:center}
 .catalog-page-status{font-size:12px;line-height:1.5;color:#786c5e;text-align:center;margin:0}
 @media(max-width:600px){.catalog-pagination-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:360px;gap:12px}.catalog-page-numbers{grid-column:1/-1;grid-row:1;gap:5px}.catalog-page-prev,.catalog-page-next{width:100%;grid-row:2}.catalog-page-button{padding:10px 12px}.catalog-page-status{font-size:11px}.catalog-pagination{margin-top:24px;padding-top:20px}}
+
+/* Beneficios: estilos explícitos y carrusel que solo muestra controles si hacen falta. */
+.trust-horizontal[hidden],.trust-horizontal #trust-controls[hidden]{display:none}
+.trust-horizontal h2,.trust-horizontal .trust-cloud-sub{text-align:left}
+.trust-horizontal .trust-cloud-sub{font-size:14px;line-height:1.5;margin:12px 0 20px;color:var(--mut)}
+.trust-horizontal #trust-track{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0;padding:4px 0 10px}
+#trust-track>.trust-benefit{flex:1 0 calc((100% - 48px)/4);min-width:0;min-height:128px;display:flex;flex-direction:row;align-items:center;gap:14px;padding:22px 18px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 3px 12px #24170b04;scroll-snap-align:start;text-align:left}
+#trust-track>.trust-benefit:hover{background:#fff;box-shadow:0 7px 18px #24170b09}
+#trust-track .trust-benefit-icon{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:0;border-radius:13px;padding:0;background:#fbf0e6;color:#d7202a}
+#trust-track .trust-benefit-icon svg{width:24px;height:24px}
+#trust-track .trust-benefit-copy{display:grid;gap:7px;min-width:0;padding:0;background:transparent;border:0;border-radius:0}
+#trust-track .trust-benefit-copy b{font-family:'Playfair Display',Georgia,serif;font-size:18px;line-height:1.25;color:#141414}
+#trust-track .trust-benefit-copy small{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;line-height:1.55;color:#71675c}
+.trust-horizontal #trust-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px auto 0}
+.trust-horizontal .trust-nav{display:grid;place-items:center;appearance:none;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:1px solid #ded5ca;border-radius:12px;background:#fff;color:#d7202a;font-size:24px;line-height:1;cursor:pointer}
+.trust-horizontal .trust-nav:hover{background:#fbf0e6;border-color:#ccbba7}
+.trust-horizontal .trust-dots{display:flex;align-items:center;gap:2px}
+.trust-horizontal .trust-dots button,.trust-horizontal .trust-dots button.on{position:relative;width:26px;min-width:26px;min-height:32px;height:32px;border:0;border-radius:8px;background:transparent;padding:0;cursor:pointer}
+.trust-horizontal .trust-dots button::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:99px;background:#c8beb1}
+.trust-horizontal .trust-dots button.on::after{width:18px;background:#d7202a}
+.trust-horizontal .trust-nav:focus-visible,.trust-horizontal .trust-dots button:focus-visible{outline:3px solid #d7202a55;outline-offset:3px}
+.store-page #cats .cgrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:20px}
+@media(max-width:1000px){#trust-track>.trust-benefit{flex-basis:calc((100% - 32px)/3)}}
+@media(max-width:820px){.store-page #cats .cgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+@media(max-width:720px){#trust-track>.trust-benefit{flex-basis:calc((100% - 16px)/2)}}
+@media(max-width:510px){#trust-track>.trust-benefit{flex:0 0 86%;padding:20px 17px;min-height:126px}.trust-horizontal[data-benefits="1"] #trust-track>.trust-benefit{flex-basis:100%}.trust-horizontal .trust-cloud-sub{font-size:13px}#trust-track .trust-benefit-copy b{font-size:17px}}
+@media(max-width:360px){.store-page #cats .cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){#trust-track>.trust-benefit:hover{transform:none}}

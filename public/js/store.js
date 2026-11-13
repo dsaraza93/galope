@@ -102,7 +102,7 @@ ${sl.map((s, i) => {
 <button class="banner-pause" data-act="bannerpause" aria-label="Pausar carrusel" aria-pressed="false">II</button><button class="arr l" data-act="prev" aria-label="Banner anterior">‹</button><button class="arr r" data-act="next" aria-label="Banner siguiente">›</button><div class="dots">${sl.map((s, i) => `<button aria-label="Ir a la diapositiva ${i + 1}" data-act="slide" data-arg="${i}"><i></i></button>`).join('')}</div></div>
 </section>
 ${(S.sidePromos||[]).some(p=>p.active)?`<section class="galope-side-promos" aria-label="Promociones">${S.sidePromos.filter(p=>p.active).map(p=>`<article class="galope-promo-${esc(p.theme)}">${p.customImage?`<div class="galope-side-media">${bannerMedia(p.customImage,p.mediaFit,p.title)}</div>`:''}<small>${esc(p.eyebrow)}</small><h2>${esc(p.title)}</h2>${bannerLink({...p,cat:p.category},'btn')}</article>`).join('')}</section>`:''}
-<section class="trust-horizontal" aria-labelledby="trust-cloud-title"><div class="trust-cloud-inner"><h2 id="trust-cloud-title">¿Por qué comprar <em>con nosotros?</em></h2><p class="trust-cloud-sub">Beneficios que acompañan tu compra</p><div class="trust-carousel" id="trust-carousel" aria-label="Beneficios de Galope"><div class="trust" id="trust-track">${(S.settings.benefits||[]).filter(b=>b.active).map((b,i)=>`<article class="trust-benefit" style="--trust-index:${i}"><span class="trust-benefit-icon">${benefitIcon(b.icon)}</span><span class="trust-benefit-copy"><b>${esc(b.title)}</b><small>${esc(b.description)}</small></span></article>`).join('')}</div></div><div class="trust-controls" aria-label="Desplazar beneficios"><button class="trust-nav" type="button" data-act="trustprev" aria-label="Beneficio anterior">‹</button><div class="trust-dots" id="trust-dots" aria-label="Posición del carrusel"></div><button class="trust-nav" type="button" data-act="trustnext" aria-label="Siguiente beneficio">›</button></div></div></section>
+<section class="trust-horizontal" aria-labelledby="trust-cloud-title"><div class="trust-cloud-inner"><h2 id="trust-cloud-title">¿Por qué comprar <em>con nosotros?</em></h2><p class="trust-cloud-sub">Beneficios que acompañan tu compra</p><div class="trust-carousel" id="trust-carousel" aria-label="Beneficios de Galope"><div class="trust" id="trust-track">${(S.settings.benefits||[]).filter(b=>b.active).map((b,i)=>`<article class="trust-benefit" style="--trust-index:${i}"><span class="trust-benefit-icon">${benefitIcon(b.icon)}</span><span class="trust-benefit-copy"><b>${esc(b.title)}</b><small>${esc(b.description)}</small></span></article>`).join('')}</div></div><div class="trust-controls" id="trust-controls" aria-label="Desplazar beneficios" hidden><button class="trust-nav" type="button" data-act="trustprev" aria-label="Beneficio anterior">‹</button><div class="trust-dots" id="trust-dots" aria-label="Posición del carrusel"></div><button class="trust-nav" type="button" data-act="trustnext" aria-label="Siguiente beneficio">›</button></div></div></section>
 <section class="sec" id="cats"><div class="sec-h"><h2>La tradición se lleva <em>con estilo.</em></h2><div class="stage-nav" role="group" aria-label="Explorar por público"><span>Explorar:</span><button type="button" data-act="world" data-arg="hombre">Hombre</button><button type="button" data-act="world" data-arg="mujer">Mujer</button></div></div><div class="cgrid">${CATS.slice(0,6).map((c, i) => `<button class="cc" data-act="go" data-arg="${esc(c[0])}" style="--t:${CT[i % CT.length]}"><div class="ci"><img src="/img/${esc(c[1])}.svg" alt=""></div><b>${esc(c[0])}</b><small>Ver productos</small></button>`).join('')}</div></section>
 <section class="fe"><div class="t"><span class="galope-eyebrow">HECHO PARA LLEVAR LO NUESTRO</span><h2>Del llano, <em>para todos los días.</em></h2><p>Encuentra ese detalle que habla de ti. Explora nuestra selección de sombreros, botas y accesorios llaneros.</p><button class="btn" data-act="browse">Explorar colección →</button></div><div class="im galope-promo-art" aria-hidden="true"><span class="galope-pair"></span></div></section>
 <section class="sec" id="prods"><div class="sec-h"><h2>Tu esencia. <em>Tu estilo llanero.</em></h2><span id="cnt" style="color:var(--mut)"></span></div><div class="cats" id="chips"></div><div class="pgrid" id="grid"></div><nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden></nav></section>
@@ -112,27 +112,42 @@ ${(S.sidePromos||[]).some(p=>p.active)?`<section class="galope-side-promos" aria
 <nav class="mobile-nav" aria-label="Accesos de la tienda"><button type="button" data-act="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></svg><span>Inicio</span></button><button type="button" data-act="browse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Catálogo</span></button><button type="button" data-act="focussearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Buscar</span></button><button type="button" data-act="favs">${IC.heart}<span>Favoritos</span><b class="fn" hidden></b></button><button type="button" data-act="cart">${IC.bag}<span>Carrito</span><b class="cn" hidden></b></button></nav>
 <button class="wa" data-act="wa" aria-label="Abrir WhatsApp" title="WhatsApp">${IC.whatsapp}<span class="sr">WhatsApp</span></button>`;
   // Carrusel horizontal autónomo: solo desplaza el contenedor, nunca la página.
-  const trustTrack = $('#trust-track');
-  if (trustTrack) {
-    const trustItems = [...trustTrack.children];
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const dots = $('#trust-dots');
-    let trustPosition = 0;
-    if (dots) dots.innerHTML = trustItems.map((_,i)=>`<button type="button" aria-label="Ver beneficio ${i+1}" class="${i===0?'on':''}" data-trust-index="${i}"></button>`).join('');
-    const goTrust = (idx) => {
-      if (!trustItems.length) return;
-      trustPosition = (idx + trustItems.length) % trustItems.length;
-      trustTrack.scrollTo({left:trustItems[trustPosition].offsetLeft - trustItems[0].offsetLeft,behavior:reduced?'instant':'smooth'});
-      dots?.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===trustPosition));
+  const trustTrack=$('#trust-track');
+  if(trustTrack){
+    const items=[...trustTrack.children],section=trustTrack.closest('section'),dots=$('#trust-dots'),controls=$('#trust-controls');
+    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let position=0,stops=[0];
+    section.hidden=!items.length;section.dataset.benefits=String(items.length);
+    const mark=()=>dots?.querySelectorAll('button').forEach((button,i)=>{button.classList.toggle('on',i===position);button.setAttribute('aria-pressed',String(i===position));});
+    const goTrust=index=>{
+      if(stops.length<2)return;
+      position=(index+stops.length)%stops.length;
+      trustTrack.scrollTo({left:stops[position],behavior:reduced?'instant':'smooth'});mark();
     };
-    $('#app').querySelector('[data-act="trustnext"]')?.addEventListener('click', () => goTrust(trustPosition+1));
-    $('#app').querySelector('[data-act="trustprev"]')?.addEventListener('click', () => goTrust(trustPosition-1));
-    dots?.addEventListener('click',e=>{const b=e.target.closest('[data-trust-index]');if(b)goTrust(Number(b.dataset.trustIndex));});
-    if (!reduced && trustItems.length > 4) {
-      const timer = window.setInterval(() => {
-        if (!trustTrack.isConnected) {window.clearInterval(timer);return;}
-        if (!trustTrack.matches(':hover') && !trustTrack.contains(document.activeElement) && !document.hidden) goTrust(trustPosition+1);
-      }, 5200);
+    const refresh=()=>{
+      const maximum=Math.max(0,trustTrack.scrollWidth-trustTrack.clientWidth),first=items[0]?.offsetLeft||0;
+      stops=[...new Set([0,...items.map(item=>Math.round(Math.min(maximum,Math.max(0,item.offsetLeft-first))))])];
+      if(maximum<=1)stops=[0];
+      position=Math.min(position,stops.length-1);controls.hidden=stops.length<2;
+      dots.innerHTML=stops.map((_,i)=>`<button type="button" aria-label="Ver posición ${i+1} de beneficios" aria-pressed="${i===position}" class="${i===position?'on':''}" data-trust-index="${i}"></button>`).join('');
+      trustTrack.scrollTo({left:stops[position],behavior:'instant'});mark();
+    };
+    section.querySelector('[data-act="trustnext"]')?.addEventListener('click',()=>goTrust(position+1));
+    section.querySelector('[data-act="trustprev"]')?.addEventListener('click',()=>goTrust(position-1));
+    dots.addEventListener('click',event=>{const button=event.target.closest('[data-trust-index]');if(button)goTrust(Number(button.dataset.trustIndex));});
+    let settleTimer=null;
+    trustTrack.addEventListener('scroll',()=>{
+      window.clearTimeout(settleTimer);settleTimer=window.setTimeout(()=>{
+        if(!trustTrack.isConnected)return;
+        let nearest=0;stops.forEach((stop,i)=>{if(Math.abs(stop-trustTrack.scrollLeft)<Math.abs(stops[nearest]-trustTrack.scrollLeft))nearest=i;});position=nearest;mark();
+      },100);
+    },{passive:true});
+    refresh();
+    if(typeof ResizeObserver==='function'){
+      const observer=new ResizeObserver(()=>{if(trustTrack.isConnected)refresh();else observer.disconnect();});observer.observe(trustTrack);
+    }
+    if(!reduced&&items.length>4){
+      const timer=window.setInterval(()=>{if(!trustTrack.isConnected){window.clearInterval(timer);return;}if(!section.matches(':hover')&&!section.contains(document.activeElement)&&!document.hidden)goTrust(position+1);},5200);
     }
   }
   $('#q').addEventListener('input', (e) => {

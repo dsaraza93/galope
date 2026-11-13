@@ -103,15 +103,6 @@ video.campaign-media-preview{object-fit:contain;background:#111}
 @media(max-width:640px){.campaign-media-head{align-items:stretch}.campaign-media-preview{width:100%;max-height:240px}}
 
 
-/* Club visual — dos edades, misma tarjeta y retícula; imágenes decorativas no interactivas. */
-.nl-club-visual{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 7% 83%,rgba(197,227,244,.34),transparent 40%),radial-gradient(ellipse at 94% 84%,rgba(251,207,223,.36),transparent 40%),var(--card)}
-.nl-club-visual::before,.nl-club-visual::after{content:"";position:absolute;width:205px;height:205px;border-radius:50%;z-index:-1;pointer-events:none}
-.nl-club-visual::before{left:-45px;bottom:-84px;background:rgba(212,233,245,.45)}
-.nl-club-visual::after{right:-35px;bottom:-98px;background:rgba(252,217,232,.47)}
-.nl-club-visual>h2,.nl-club-visual>p,.nl-club-visual>.club-form{position:relative;z-index:1}
-.nl-club-visual>.club-form{max-width:760px}
-@keyframes club-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media(max-width:1290px){@media(max-width:970px){@media(max-width:700px){@media(prefers-reduced-motion:reduce){
 /* Categoría transversal sin alterar jerarquía del menú aprobado */
 header.top .nav .nav-stim{color:var(--ink);font-weight:650}
 header.top .nav .nav-stim:hover{color:var(--rose)}
@@ -174,7 +165,7 @@ header.top .nav .nav-stim:hover{color:var(--rose)}
 /* Carrusel: automático + navegación manual con flechas tipo cristal, muy sutiles. */
 .bn{overflow:hidden}
 .bn>.sl,.bn>.dots{border-radius:34px}
-.bn>.arr{display:grid!important;place-items:center;position:absolute;top:50%;transform:translateY(-50%);z-index:12;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.58);background:rgba(255,255,255,.24);box-shadow:0 8px 18px rgba(74,34,112,.08), inset 0 1px 0 rgba(255,255,255,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:22px;line-height:1;color:rgba(74,34,112,.86);transition:transform .18s ease,box-shadow .18s ease,background .18s ease,opacity .18s ease,border-color .18s ease;color .18s ease;opacity:.78}
+.bn>.arr{display:grid!important;place-items:center;position:absolute;top:50%;transform:translateY(-50%);z-index:12;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.58);background:rgba(255,255,255,.24);box-shadow:0 8px 18px rgba(74,34,112,.08), inset 0 1px 0 rgba(255,255,255,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:22px;line-height:1;color:rgba(74,34,112,.86);transition:transform .18s ease,box-shadow .18s ease,background .18s ease,opacity .18s ease,border-color .18s ease,color .18s ease;opacity:.78}
 .bn>.arr:hover{transform:translateY(-50%) scale(1.04);box-shadow:0 12px 24px rgba(74,34,112,.14);background:rgba(255,255,255,.36);border-color:rgba(255,255,255,.76);opacity:.96;color:rgba(74,34,112,.98)}
 .bn>.arr:active{transform:translateY(-50%) scale(.98)}
 .bn>.arr.l{left:14px}
