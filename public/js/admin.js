@@ -25,7 +25,7 @@ async function adminShell(body) {
   if(location.hash!=='#admin')return;
   const who = auth && auth.mode === 'google'
     ? `<span class="who">${esc(auth.email)}</span><button class="pill sm ghost" data-act="logout">Salir</button>` : '';
-  $('#app').innerHTML = `<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><b style="font:700 25px 'Playfair Display'">Panel de administración</b><span style="flex:1"></span>${who}<a class="pill sm" href="#">← Ver tienda</a></div></header>
+  $('#app').innerHTML = `<header class="top admin-header"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><b style="font:700 25px 'Playfair Display'">Panel de administración</b><span style="flex:1"></span>${who}<a class="pill sm" href="#">← Ver tienda</a></div></header>
 <div class="wrap adm"><nav class="side" aria-label="Administración">${TABS.map((t) => `<button class="${tab === t[0] ? 'on' : ''}" data-act="tab" data-arg="${t[0]}">${t[1]}</button>`).join('')}</nav><main>
 ${auth.mode === 'open' ? '<div class="warn"><b>Acceso provisional:</b> el panel entra sin contraseña (AUTH_MODE=open). Antes de publicar la tienda, activa el inicio de sesión con Google (ver README).</div>' : ''}
 ${body}</main></div>`;
@@ -50,7 +50,7 @@ function loadGoogle() {
 function loginError(message){const target=$('#lerr');if(location.hash==='#admin'&&target)target.textContent=message;}
 async function showLogin() {
   if(location.hash!=='#admin')return;
-  $('#app').innerHTML=`<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
+  $('#app').innerHTML=`<header class="top admin-header"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
 <div class="login galope-login"><h2>Galope · Administración</h2><p>Inicia sesión con <strong>galopegalope44@gmail.com</strong> para administrar tu empresa.</p><div id="gbtn" aria-label="Iniciar sesión con Google"></div><p class="err" id="lerr" role="alert"></p><button type="button" class="pill sm ghost" data-act="admin">Reintentar acceso</button><details class="login-config"><summary>¿Google muestra «origin_mismatch»?</summary><p>En el cliente OAuth de Google Cloud, añade este origen exacto a los <strong>Orígenes autorizados de JavaScript</strong>:</p><code>${esc(location.origin)}</code><p>Utiliza el cliente <code>${esc(auth.googleClientId||'Pendiente de configurar')}</code>. Guarda el cambio en Google Cloud y vuelve a intentar el acceso.</p><a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Abrir configuración de Google</a></details></div>`;
   if(!auth.googleClientId){loginError('El acceso administrador está pendiente de configurar: falta GOOGLE_CLIENT_ID en Cloudflare.');return;}
   try {
@@ -153,7 +153,7 @@ async function renderTab() {
     const btns=[['month','Mes'],['quarter','Trimestre'],['year','Año'],['specific','Elegir mes']];
     const csv='/api/admin/customers.csv?'+new URLSearchParams({from,to,segment:customerSegment});
     body=`<div class="panel"><div class="sec-h"><div><h3>Clientes y compras</h3><p>Conoce qué compran tus clientes y encuentra oportunidades de recompra. Solo pagos Bold aprobados.</p></div></div>
-    <div class="sales-quick" style="margin:14px 0">${btns.map(([v,t])=>`<button type="button" class="sales-quick-btn ${customerPeriod===v?'selected':''}" data-act="customerperiod" data-arg="${v}">${t}</button>`).join('')}</div>
+    <div class="sales-quick" style="margin:14px 0" role="group" aria-label="Período de clientes">${btns.map(([v,t])=>`<button type="button" class="sales-quick-btn ${customerPeriod===v?'selected':''}" aria-pressed="${customerPeriod===v}" data-act="customerperiod" data-arg="${v}">${t}</button>`).join('')}</div>
     <div class="tools" style="margin:12px 0;align-items:end;gap:10px;flex-wrap:wrap">
       ${customerPeriod==='specific'?`<label>Mes <input type="month" id="customer-month" value="${esc(customerMonth||ymd(now).slice(0,7))}"></label>`:`<button type="button" class="pill sm ghost" data-act="customerprev">‹ Anterior</button><button type="button" class="pill sm ghost" data-act="customercurrent">Actual</button><button type="button" class="pill sm ghost" data-act="customernext">Siguiente ›</button>`}
       <b style="padding:8px">${esc(label)}</b>

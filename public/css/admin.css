@@ -1,0 +1,34 @@
+/* Controles del administrador: una sola jerarquía visual para Galope. */
+.adm{--control-height:40px;--control-radius:12px}
+.adm button,.adm a.pill,.modal form button{appearance:none;-webkit-appearance:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:600;line-height:1.3;min-height:40px;border:1px solid #ded8d0;border-radius:12px;padding:10px 15px;background:#fff;color:#34302c;cursor:pointer;transition:background .15s,border-color .15s,color .15s,box-shadow .15s}
+.adm button:hover:not(:disabled),.adm a.pill:hover,.modal form button:hover:not(:disabled){background:#f8f2eb;border-color:#cdbfae;color:#171412}
+.adm button:focus-visible,.adm a.pill:focus-visible,.adm input:focus-visible,.adm select:focus-visible{outline:3px solid #d7202a55;outline-offset:3px}
+.adm button:disabled,.modal form button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.adm .pill.pk,.modal form .pill.pk{background:#d7202a;border-color:#d7202a;color:#fff;box-shadow:0 3px 9px #d7202a14}
+.adm .pill.pk:hover:not(:disabled),.modal form .pill.pk:hover:not(:disabled){background:#a8171f;border-color:#a8171f;color:#fff}
+.adm .pill.ghost,.adm a.pill.ghost{background:#fff;border:1px solid #ded8d0;color:#34302c}
+.adm .pill.ghost:hover:not(:disabled),.adm a.pill.ghost:hover{background:#fff3f1;border-color:#e4bbb8;color:#a8171f}
+.adm .side{padding:12px;border-color:#e5dfd6;border-radius:20px;background:#fff}
+.adm .side button{border-color:transparent;background:transparent;font-size:13px;padding:12px 14px;min-height:44px;box-shadow:none}
+.adm .side button.on{background:#d7202a;border-color:#d7202a;color:#fff}
+.adm .side button.on:hover{background:#a8171f;border-color:#a8171f;color:#fff}
+.adm .sales-quick{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:6px;background:#f5f1eb;border:1px solid #e9e1d7;border-radius:16px;margin:18px 0 16px;width:fit-content;max-width:100%}
+.adm .sales-quick-btn{min-height:38px;padding:10px 15px;border:1px solid transparent;border-radius:11px;background:transparent;color:#6a6055;box-shadow:none;white-space:nowrap}
+.adm .sales-quick-btn:hover:not(:disabled){background:#fff;border-color:#e7ddd1;color:#171412}
+.adm .sales-quick-btn.selected,.adm .sales-quick-btn[aria-pressed=true]{background:#d7202a;border-color:#d7202a;color:#fff;box-shadow:0 3px 8px #9e152323}
+.adm .sales-quick-btn.selected:hover{background:#a8171f;border-color:#a8171f;color:#fff}
+.adm .sales-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-top:6px}
+.adm .sales-nav{display:flex;gap:7px;flex-wrap:wrap}
+.adm .sales-nav .pill{min-height:38px;padding:9px 14px;font-size:12px;border-radius:11px;letter-spacing:0}
+.adm .sales-controls label,.adm .tools label{font-size:12px;font-weight:600;color:#70665b}
+.adm .sales-controls input,.adm .sales-controls select,.adm .tools input,.adm .tools select,.adm .tools button{min-height:40px;border:1px solid #ded8d0;border-radius:12px;padding:9px 12px;background:#fff;color:#34302c;font:500 13px 'DM Sans',system-ui,sans-serif}
+.adm .tools input{min-width:0}.adm .tools select{max-width:100%}
+.adm .sales-range{display:inline-block;margin:14px 0 0;padding:7px 11px;border:1px solid #eee7dd;background:#fbf8f4;border-radius:9px;font-size:12px;color:#756a5e}
+.adm .sales-report .sec-h{margin:0}.adm .sales-report h3{font-size:22px}.adm .sales-report .sec-h p{font-size:13px;line-height:1.6;color:#756a5e}
+.adm .sales-today-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 24px;padding:24px 26px;margin-bottom:18px;border:1px solid #e4dbcf;border-radius:22px;background:linear-gradient(120deg,#fff,#f7f0e6);color:#141414;box-shadow:none}
+.adm .sales-today-card>div{grid-row:1/3}.adm .sales-today-card>div>span{font-size:10px;font-weight:700;letter-spacing:1.2px;color:#a8171f}.adm .sales-today-card h3{color:#141414;font-size:24px;margin:8px 0}.adm .sales-today-card p{font-size:12px;color:#756a5e;margin:0}.adm .sales-today-card>strong{font-family:'Playfair Display',Georgia,serif;font-size:36px;text-align:right;color:#141414}.adm .sales-today-card>small{font-size:11px;text-align:right;color:#756a5e}
+.adm .sales-stats{gap:12px;margin:16px 0}.adm .sales-stats .stat{padding:18px;border:1px solid #e4ddd4;border-top:3px solid #ddd0bf!important;border-radius:18px;background:#fff;box-shadow:0 3px 14px #37220a04}
+.adm .sales-report + .sales-stats .stat:first-child{border-top-color:#d7202a!important}.adm .sales-stats .stat>span{font-size:12px;color:#675e53}.adm .sales-stats .stat>b{font-size:30px;line-height:1.2;font-weight:600;margin:12px 0 6px;letter-spacing:-.4px}.adm .sales-stats .stat>small{font-size:10px;color:#918577;line-height:1.5}
+@media(max-width:820px){.adm .sales-quick{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px}.adm .sales-quick-btn{min-height:44px;white-space:normal;padding:8px 6px;font-size:12px}.adm .sales-controls input,.adm .sales-controls select,.adm .tools input,.adm .tools select{font-size:16px;min-height:44px}.adm .sales-nav{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.adm .sales-nav .pill{padding:9px 6px;min-height:44px;font-size:11px}.adm .sales-today-card{padding:20px;grid-template-columns:minmax(0,1fr);gap:5px}.adm .sales-today-card>div{grid-row:auto}.adm .sales-today-card>strong,.adm .sales-today-card>small{text-align:left}.adm .sales-today-card>strong{margin-top:10px}.adm .sales-stats .stat{padding:14px}.adm .sales-stats .stat>b{font-size:26px}.adm .sales-stats .stat>span{font-size:11px}}
+
+.admin-header .pill{min-height:40px;border-radius:12px;padding:10px 15px;font:600 13px 'DM Sans',system-ui,sans-serif;text-decoration:none}.admin-header .pill.ghost{border:1px solid #ded8d0;background:#fff;color:#34302c}.admin-header .pill.ghost:hover{background:#fff3f1;border-color:#e4bbb8;color:#a8171f}.toast:empty{display:none}
