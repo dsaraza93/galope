@@ -94,7 +94,7 @@ function renderStore() {
 <button class="mobile-menu-shade" type="button" data-act="closemenu" tabindex="-1" aria-label="Cerrar menú"></button>
 <main class="wrap w"><section class="hz${sl.length?'':' no-banners'}" id="ofertas" aria-label="Colecciones Galope"><h1 class="sr">Galope · Tienda Llanera</h1><div class="bn" id="bn" aria-roledescription="carrusel" aria-label="Ofertas destacadas">
 ${sl.map((s, i) => {
-    const visual = s.customImage || (s.img === 'logo' ? '/img/logo.webp' : '/img/club-galope.webp');
+    const visual = s.customImage || (s.img==='galope-brand'?'/img/galope-brand-banner.svg':s.img==='logo'?'/img/logo.webp':'/img/club-galope.webp');
     const media=s.mobileImage?`<div class="campaign-desktop">${bannerMedia(visual,'artwork',s.title)}</div><div class="campaign-mobile">${bannerMedia(s.mobileImage,'artwork',s.title)}</div>`:bannerMedia(visual,'artwork',s.title);
     const video=/\.(mp4|webm)$/.test(visual)||/\.(mp4|webm)$/.test(s.mobileImage||'');
     return `<div class="sl banner-full banner-fit-artwork${i?'':' on'}">${media}${bannerLink(s,'artwork-target'+(video?' artwork-video':''))}</div>`;

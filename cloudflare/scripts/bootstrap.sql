@@ -20,3 +20,4 @@ INSERT OR IGNORE INTO slides(id,pos,title,cat,img,active,custom_image,cta) SELEC
 INSERT OR IGNORE INTO slides(id,pos,title,cat,img,active,custom_image,cta) SELECT 4,3,'Estilo vaquero','Sombreros','logo',0,'/img/logo.webp','Ver colección' WHERE EXISTS (SELECT 1 FROM _galope_bootstrap WHERE fresh=1);
 INSERT OR IGNORE INTO slides(id,pos,title,cat,img,active,custom_image,cta) SELECT 5,4,'Accesorios Galope','Sombreros','logo',0,'/img/logo.webp','Ver colección' WHERE EXISTS (SELECT 1 FROM _galope_bootstrap WHERE fresh=1);
 DROP TABLE _galope_bootstrap;
+INSERT INTO slides(pos,title,cta,cat,img,active,custom_image,mobile_image,media_fit) SELECT COALESCE((SELECT MAX(pos)+1 FROM slides),0),'Vístete como se vive en el llano','Comprar ahora','','galope-brand',1,'/img/galope-brand-banner.svg','/img/galope-brand-banner-mobile.svg','artwork' WHERE EXISTS(SELECT 1 FROM settings WHERE key='store') AND NOT EXISTS(SELECT 1 FROM slides WHERE img='galope-brand');

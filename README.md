@@ -16,7 +16,7 @@ Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crem
 
 Los artículos unisex se incluyen al explorar hombre o mujer y también pueden consultarse por separado. El filtro de ofertas muestra productos cuyo precio anterior es mayor que el actual.
 
-El WhatsApp de atención es **+57 311 504 4650**, configurable desde el panel. El catálogo inicial reproduce los **12 ejemplos** del archivo enviado, con **stock cero** hasta que el negocio confirme las existencias. La instalación inicial no incluye compradores, pedidos ni sesiones de ejemplo. Las cinco posiciones de banners empiezan ocultas y se activan desde el panel después de cargar las piezas de Galope.
+El WhatsApp de atención es **+57 311 504 4650**, configurable desde el panel. El catálogo inicial reproduce los **12 ejemplos** del archivo enviado, con **stock cero** hasta que el negocio confirme las existencias. La instalación inicial no incluye compradores, pedidos ni sesiones de ejemplo. Las cinco posiciones de campañas empiezan ocultas y se activan desde el panel después de cargar las piezas de Galope. La presentación negra con logo y jinetes se conserva como un banner adicional activo del mismo carrusel, con versiones de escritorio y celular; también se puede cambiar u ocultar desde el panel.
 
 ## Ejecutar y comprobar la versión principal
 

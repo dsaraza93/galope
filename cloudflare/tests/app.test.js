@@ -34,7 +34,9 @@ describe('Interfaz y autenticación',()=>{
   const data=await response.json();expect(data.settings.name).toBe('Galope Tienda Llanera');expect(data.products).toHaveLength(12);expect(data.settings.wa).toBe('573115044650');
   const slides=await json('/admin/slides',{admin:true});
   await json('/admin/slides/'+slides[0].id,{method:'PUT',admin:true,body:{...slides[0],cta:'',active:true}});
-  const visible=(await json('/store')).slides;expect(visible).toHaveLength(1);expect(visible[0].customImage).toBe('/img/logo.webp');expect(visible[0].cta).toBe('Ver colección');
+  const visible=(await json('/store')).slides;expect(visible).toHaveLength(2);expect(visible.find(s=>s.id===slides[0].id).customImage).toBe('/img/logo.webp');expect(visible.find(s=>s.id===slides[0].id).cta).toBe('Ver colección');expect(visible.find(s=>s.img==='galope-brand').mobileImage).toBe('/img/galope-brand-banner-mobile.svg');
+  const brand=(await json('/admin/slides',{admin:true})).find(s=>s.img==='galope-brand');await json('/admin/slides/'+brand.id,{method:'PUT',admin:true,body:brand});
+  expect((await json('/admin/slides',{admin:true})).filter(s=>s.img==='galope-brand')).toHaveLength(1);
  });
  it('sin configuración Google publica el catálogo pero bloquea login y sesiones existentes',async()=>{
   for(const missing of [{GOOGLE_CLIENT_ID:''},{ADMIN_EMAILS:''}]){
