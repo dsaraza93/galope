@@ -1,0 +1,34 @@
+﻿# Credenciales privadas
+.env
+.env.*
+!.env.example
+.dev.vars*
+*.pem
+*.key
+
+# Dependencias
+node_modules/
+
+# Base de datos y datos locales
+data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Imagenes subidas por usuarios
+uploads/
+public/uploads/
+
+# Cloudflare
+.wrangler/
+
+# Archivos temporales
+*.log
+*.zip
+.DS_Store
+Thumbs.db
+
+# Generated bundles and local payment verification
+.build/
+payment-verification.private.json

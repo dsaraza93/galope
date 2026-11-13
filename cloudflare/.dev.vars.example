@@ -1,0 +1,8 @@
+# Copia a .dev.vars e introduce los valores SOLO en tu máquina.
+# Los identificadores públicos GOOGLE_CLIENT_ID y ADMIN_EMAILS van en wrangler.jsonc.
+BOLD_TEST_API_KEY=
+BOLD_TEST_SECRET_KEY=
+BOLD_WEBHOOK_SECRET=
+# No configurar llaves reales hasta certificar la integración.
+# BOLD_LIVE_API_KEY=
+# BOLD_LIVE_SECRET_KEY=

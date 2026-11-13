@@ -1,0 +1,28 @@
+{
+  "name": "galope",
+  "version": "1.0.0",
+  "description": "Galope Tienda Llanera: tienda online, inventario y administración",
+  "private": true,
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "npm --prefix cloudflare test",
+    "check": "npm --prefix cloudflare run check",
+    "deploy": "npm --prefix cloudflare run deploy"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "google-auth-library": "^10.9.1",
+    "helmet": "^8.3.0",
+    "multer": "^2.5.0",
+    "node-sqlite3-wasm": "^0.8.61",
+    "sharp": "^0.35.5"
+  }
+}

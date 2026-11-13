@@ -1,0 +1,2 @@
+ALTER TABLE slides ADD COLUMN button_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE slides ADD COLUMN media_fit TEXT NOT NULL DEFAULT 'contain';

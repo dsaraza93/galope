@@ -1,0 +1,12 @@
+{
+  "verified":false,
+  "checkedAt":"",
+  "account":"Identificador del comercio, sin credenciales",
+  "approval":false,
+  "rejection":false,
+  "duplicateWebhook":false,
+  "concurrentStock":false,
+  "amountMismatch":false,
+  "latePayment":false,
+  "evidence":"Referencias de pruebas verificadas con Bold; sin datos personales ni secretos"
+}

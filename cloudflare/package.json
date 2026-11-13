@@ -1,0 +1,37 @@
+{
+  "name": "galope-cloudflare",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "node scripts/preflight.mjs && wrangler deploy",
+    "check": "wrangler deploy --dry-run --outdir .build",
+    "test": "vitest run && node --test tests-node/*.test.mjs",
+    "db:local": "wrangler d1 migrations apply DB --local",
+    "db:remote": "wrangler d1 migrations apply DB --remote",
+    "import:sqlite": "node scripts/import-sqlite.mjs",
+    "import:r2": "node scripts/import-r2.mjs",
+    "seed:local": "wrangler d1 execute DB --local --file scripts/demo.sql",
+    "seed:remote": "wrangler d1 execute DB --remote --file scripts/demo.sql",
+    "smoke": "node scripts/smoke.mjs",
+    "test:catalog-images": "node tests-browser/catalog-images.mjs",
+    "test:campaigns": "node tests-browser/campaigns.mjs",
+    "test:banners": "node tests-browser/banners.mjs",
+    "test:mobile": "node tests-browser/mobile.mjs",
+    "test:payment-browser": "node tests-browser/payment.mjs"
+  },
+  "dependencies": {
+    "@cf-wasm/photon": "0.4.0",
+    "jose": "6.2.3"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.11",
+    "playwright-core": "1.64.1",
+    "vitest": "4.1.0",
+    "wrangler": "4.156.0"
+  }
+}
