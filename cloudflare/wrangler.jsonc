@@ -17,7 +17,7 @@
     {
       "binding": "DB",
       "database_name": "galope",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "4fff9503-b366-4c8c-831a-1a3d0bf33fff",
       "migrations_dir": "migrations"
     }
   ],
@@ -31,7 +31,7 @@
     "ENVIRONMENT": "development",
     "BOLD_MODE": "sandbox",
     "GOOGLE_CLIENT_ID": "",
-    "ADMIN_EMAILS": "",
+    "ADMIN_EMAILS": "galopegalope44@gmail.com",
     "SESSION_TTL_HOURS": "12"
   },
   "triggers": {

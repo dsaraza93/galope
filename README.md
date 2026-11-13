@@ -43,7 +43,7 @@ La integración continua de GitHub ejecuta ambas comprobaciones al subir cambios
 
 ## Publicar más adelante
 
-Consulta [DESPLIEGUE.md](DESPLIEGUE.md). La configuración se llama `galope`, con una base D1 `galope` y un bucket R2 `galope-media`. El identificador de D1 es un placeholder deliberado: debe sustituirse por una base nueva antes de publicar. No reutilices los recursos de Babycenter.
+Consulta [DESPLIEGUE.md](DESPLIEGUE.md). La configuración se llama `galope`, con una base D1 `galope` y un bucket R2 `galope-media`. El identificador de D1 ya corresponde al facilitado para Galope. Aún deben confirmarse el nombre real del bucket y los datos de acceso con Google antes de publicar. No reutilices los recursos de Babycenter.
 
 Bold conserva el flujo del proyecto original, pero necesita las llaves propias del comercio. Permanece en **sandbox** y sin llaves: el checkout no realiza cobros. Addi y Sistecrédito siguen pendientes como en el origen. Las campañas se preparan y exportan manualmente; no hay proveedor oficial de WhatsApp configurado.
 

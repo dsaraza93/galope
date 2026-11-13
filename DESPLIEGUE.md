@@ -12,7 +12,7 @@ npx wrangler d1 create galope
 npx wrangler r2 bucket create galope-media
 ```
 
-En `wrangler.jsonc`, reemplaza el UUID de ceros de `d1_databases[0].database_id` por el UUID devuelto para **galope**. Conserva el binding `DB`. El bucket usa el binding `MEDIA`. R2 puede requerir habilitar facturación en tu cuenta.
+En `wrangler.jsonc`, ya se configuró `d1_databases[0].database_id` con `4fff9503-b366-4c8c-831a-1a3d0bf33fff`, proporcionado para **galope**. Confirma que pertenezca a la cuenta y que el nombre de la base sea correcto antes de aplicar migraciones. Conserva el binding `DB`. El bucket usa el binding `MEDIA`. R2 puede requerir habilitar facturación en tu cuenta.
 
 ## 2. Administración
 
@@ -58,3 +58,11 @@ npm run smoke -- https://galope.TU-SUBDOMINIO.workers.dev
 `deploy` comprueba que D1 y Google estén configurados antes de publicar. El cron de conciliación se instala junto con el Worker. Un despliegue requiere conexión autorizada a Cloudflare; tener acceso a GitHub por sí solo no la proporciona.
 
 Se puede conectar después este repositorio con Cloudflare Workers Builds. Configura como carpeta raíz `cloudflare`, instalación `npm ci` y comando de despliegue `npm run db:remote && npm run deploy`. No agregues `seed:remote` a cada despliegue. Mantén los secretos en Cloudflare y la configuración de recursos en `wrangler.jsonc`.
+
+## Pendientes de acceso y configuración
+
+El nombre configurado para el bucket es `galope-media`; debe coincidir con el nombre real del bucket en Cloudflare. El valor `2921473c01d366dccb385ff56cb48513` se recibió como identificador de R2, pero un binding R2 requiere `bucket_name`, no un identificador opaco. Su función no se ha confirmado: no se añadió como bucket ni como credencial.
+
+El correo administrador ya se configuró como `galopegalope44@gmail.com`. Aún faltan el ID público de cliente OAuth de Google y una sesión autorizada de Cloudflare para publicar desde este entorno. El ID de base de datos y el acceso a GitHub no autentican frente a Cloudflare.
+
+Para explicar el almacenamiento gratuito al cliente, consulta [FOTOS_Y_COSTOS.md](FOTOS_Y_COSTOS.md).
