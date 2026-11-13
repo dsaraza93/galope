@@ -10,7 +10,7 @@ function bannerOptions(b) {
     if (!relative && !absolute) throw new HttpError(400, 'Usa una URL http(s), una ruta del sitio o #producto-ID');
   }
   const customImage = String(b.customImage || '');
-  if (customImage && !/^\/uploads\/[a-f0-9]{32}\.(webp|mp4|webm)$/.test(customImage)) throw new HttpError(400, 'Imagen o video no válido');
+  if (customImage && !['/img/logo.webp','/img/club-galope.webp'].includes(customImage) && !/^\/uploads\/[a-f0-9]{32}\.(webp|mp4|webm)$/.test(customImage)) throw new HttpError(400, 'Imagen o video no válido');
   const mediaFit = b.mediaFit || 'contain';
   if (!['contain','cover','artwork'].includes(mediaFit)) throw new HttpError(400, 'Ajuste de imagen no válido');
   const mobileImage=String(b.mobileImage||'');

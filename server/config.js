@@ -33,7 +33,7 @@ module.exports = {
   uploadsDir: path.join(dataDir, 'uploads'),
   publicDir: path.resolve(__dirname, '..', 'public'),
   dbFile: path.join(dataDir, 'galope.db'),
-  categories: [["Sombreros", "sombreros"], ["Botas", "botas"], ["Camisas baqueras", "camisas"], ["Correas", "correas"], ["Cotizas", "cotizas"], ["Gorras", "gorras"], ["Ruanas y cobijas", "ruanas"], ["Accesorios", "accesorios"]],
+  categories: [["Sombreros", "sombreros"], ["Botas", "botas"], ["Camisas vaqueras", "camisas"], ["Correas", "correas"], ["Cotizas", "cotizas"], ["Gorras", "gorras"], ["Ruanas y cobijas", "ruanas"], ["Accesorios", "accesorios"]],
   boldApiKey: env.BOLD_API_KEY || '',
   reservationHours: Math.min(168, Math.max(1, parseInt(env.RESERVATION_HOURS, 10) || 24)),
   orderStatuses: ['Nuevo', 'Confirmado', 'Enviado', 'Entregado', 'Cancelado'],

@@ -269,7 +269,7 @@ async function pdel(id) {
 
 /* ---------- Otros formularios ---------- */
 function slideMediaEditor(s,i) {
-  const original=s.bg==='photo'?'/img/club-galope.webp':'/img/'+s.img+'.webp';
+  const original=s.img==='logo'?'/img/logo.webp':'/img/club-galope.webp';
   return `<form class="banner-editor" data-form="slide" data-id="${s.id}"><div class="banner-editor-top"><strong>Banner ${i+1}</strong><label class="banner-switch"><input type="checkbox" name="active" ${s.active?'checked':''}> Mostrar en la tienda</label></div><p class="banner-hint">Se muestra únicamente tu imagen o video. Incluye en el diseño los textos y el botón que quieras ver. La imagen completa enlaza al producto elegido.</p><div class="banner-editor-grid"><div>${bannerMediaEditor({...s,mediaFit:'artwork'},original)}</div><div class="banner-fields"><label class="fld">Nombre para identificar este banner<input name="title" required minlength="2" maxlength="90" value="${esc(s.title)}"><small>Este nombre no aparece sobre la imagen.</small></label>${bannerDestinationFields(s)}<label class="fld">Categoría alternativa si no eliges un producto<select name="cat"><option value="">Todos los productos</option>${S.categories.map(c=>`<option value="${esc(c[0])}" ${c[0]===s.cat?'selected':''}>${esc(c[0])}</option>`).join('')}</select></label><button class="pill pk" type="submit">Guardar banner ${i+1}</button></div></div></form>`;
 }
 
@@ -312,7 +312,7 @@ async function saveSidePromo(form, btn) {
 }
 async function saveSlide(form, btn) {
   const f=new FormData(form), original=(window.__bannerSlides||[]).find(s=>String(s.id)===form.dataset.id)||{};
-  const body={...original,...Object.fromEntries(f.entries()),active:f.has('active'),mediaFit:'artwork',timer:false};
+  const body={...original,...Object.fromEntries(f.entries()),active:f.has('active'),cta:original.cta||'Ver colección',mediaFit:'artwork',timer:false};
   await busy(btn, async () => { await api('/admin/slides/' + form.dataset.id, { method: 'PUT', body }); toast('Banner actualizado'); await loadStore().catch(()=>{}); });
 }
 async function saveSettings(form, btn) {

@@ -1,6 +1,6 @@
 # Galope · Tienda Llanera
 
-Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crema, logo original, sombreros, botas, camisas baqueras, correas, cotizas, gorras, ruanas y accesorios.
+Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crema, logo original, sombreros, botas, camisas vaqueras, correas, cotizas, gorras, ruanas y accesorios.
 
 **Estado:** proyecto conectado a Cloudflare Workers + D1 + R2. El despliegue ahora inicializa automáticamente una base recién migrada antes de publicar. No se ha conectado una cuenta de pagos.
 

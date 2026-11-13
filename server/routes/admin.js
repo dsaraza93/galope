@@ -326,7 +326,7 @@ router.put('/slides/:id', (req, res) => {
     v.str(b.title, 'Título', { min: 2, max: 90 }),
     v.str(b.sub, 'Texto', { max: 200, required: false }),
     v.str(b.off, 'Oferta', { max: 40, required: false }),
-    v.str(b.cta, 'Botón', { min: 2, max: 40 }),
+    v.str(b.cta || 'Ver colección', 'Botón', { min: 2, max: 40 }),
     cat,
     v.str(b.seal, 'Sello', { max: 30, required: false }),
     v.bool(b.active) ? 1 : 0, customImage, theme, timer, timerEnd, buttonUrl, mediaFit, mobileImage, id);

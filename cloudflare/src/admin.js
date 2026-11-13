@@ -453,7 +453,7 @@ router.put('/slides/:id', async (req, res) => {
   }), v.str(b.off, 'Oferta', {
     max: 40,
     required: false
-  }), v.str(b.cta, 'Botón', {
+  }), v.str(b.cta || 'Ver colección', 'Botón', {
     min: 2,
     max: 40
   }), cat, v.str(b.seal, 'Sello', {

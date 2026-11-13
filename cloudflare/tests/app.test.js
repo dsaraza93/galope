@@ -32,6 +32,9 @@ describe('Interfaz y autenticación',()=>{
   await env.DB.exec(env.TEST_BOOTSTRAP);
   const response=await call('/store');expect(response.status).toBe(200);
   const data=await response.json();expect(data.settings.name).toBe('Galope Tienda Llanera');expect(data.products).toHaveLength(12);expect(data.settings.wa).toBe('573115044650');
+  const slides=await json('/admin/slides',{admin:true});
+  await json('/admin/slides/'+slides[0].id,{method:'PUT',admin:true,body:{...slides[0],cta:'',active:true}});
+  const visible=(await json('/store')).slides;expect(visible).toHaveLength(1);expect(visible[0].customImage).toBe('/img/logo.webp');expect(visible[0].cta).toBe('Ver colección');
  });
  it('sin configuración Google publica el catálogo pero bloquea login y sesiones existentes',async()=>{
   for(const missing of [{GOOGLE_CLIENT_ID:''},{ADMIN_EMAILS:''}]){
