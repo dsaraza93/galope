@@ -26,6 +26,17 @@ beforeEach(async()=>{
 });
 afterEach(()=>vi.restoreAllMocks());
 describe('Interfaz y autenticación',()=>{
+ it('sin configuración Google publica el catálogo pero bloquea login y sesiones existentes',async()=>{
+  for(const missing of [{GOOGLE_CLIENT_ID:''},{ADMIN_EMAILS:''}]){
+   const target={...env,...missing};
+   const request=path=>new Request('https://shop.example.test/api'+path,{headers:{cookie}});
+   expect((await worker.fetch(request('/store'),target)).status).toBe(200);
+   const status=await worker.fetch(request('/auth/status'),target);expect((await status.json()).authenticated).toBe(false);
+   expect((await worker.fetch(request('/admin/products'),target)).status).toBe(401);
+   const login=new Request('https://shop.example.test/api/auth/google',{method:'POST',headers:{'x-requested-with':'galope','content-type':'application/json'},body:JSON.stringify({credential:'invalid'})});
+   expect((await worker.fetch(login,target)).status).toBe(503);
+  }
+ });
  it('sirve el diseño, scripts y logos originales',async()=>{for(const path of ['/','/css/app.css','/js/admin.js','/img/logo.webp']){const r=await SELF.fetch('https://shop.example.test'+path);expect(r.status).toBe(200);expect((await r.arrayBuffer()).byteLength).toBeGreaterThan(100);}});
  it('catálogo completo, cabeceras y configuración de Google',async()=>{const r=await call('/store');expect(r.status).toBe(200);expect(r.headers.get('x-galope-release')).toBe('bold-rejection-20261030.4');expect(r.headers.get('content-security-policy')).toContain("object-src 'none'");const s=await r.json();expect(s.products).toHaveLength(6);expect(s.slides).toHaveLength(5);expect(s.sidePromos).toHaveLength(2);expect(s.categories).toHaveLength(8);const a=await json('/auth/status');expect(a.authenticated).toBe(false);expect(a.mode).toBe('google');});
  it('protege administración, revocación y expiración',async()=>{expect((await call('/admin/products')).status).toBe(401);expect((await json('/auth/status',{admin:true})).authenticated).toBe(true);await json('/auth/logout',{method:'POST',body:{},admin:true});expect((await call('/admin/products',{admin:true})).status).toBe(401);});

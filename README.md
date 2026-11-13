@@ -32,7 +32,7 @@ npm run dev
 
 Tienda: `http://localhost:8787`. Administración: `http://localhost:8787/#admin`.
 
-Para entrar a administración se requiere configurar un cliente OAuth web de Google y el correo administrador en `cloudflare/wrangler.jsonc`. Autoriza el origen local en Google Cloud. No se ha supuesto un correo de Galope: está pendiente de proporcionar. El panel no queda abierto en internet.
+Para entrar a administración se requiere configurar un cliente OAuth web de Google y el correo administrador en `cloudflare/wrangler.jsonc`. Autoriza el origen local en Google Cloud. El correo administrador configurado es `galopegalope44@gmail.com`. La tienda puede desplegarse mientras se obtiene el ID de cliente de Google; el panel permanece bloqueado hasta completar esa configuración.
 
 ```bash
 npm test

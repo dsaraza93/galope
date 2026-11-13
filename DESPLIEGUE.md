@@ -55,7 +55,7 @@ npm run deploy
 npm run smoke -- https://galope.TU-SUBDOMINIO.workers.dev
 ```
 
-`deploy` comprueba que D1 y Google estén configurados antes de publicar. El cron de conciliación se instala junto con el Worker. Un despliegue requiere conexión autorizada a Cloudflare; tener acceso a GitHub por sí solo no la proporciona.
+`deploy` comprueba los recursos D1/R2. Si Google aún no está configurado, muestra un aviso y permite publicar la tienda; el panel administrador permanece bloqueado, incluso para sesiones anteriores. Configura Google para habilitar el acceso autorizado. El cron de conciliación se instala junto con el Worker. Un despliegue requiere conexión autorizada a Cloudflare; tener acceso a GitHub por sí solo no la proporciona.
 
 Se puede conectar después este repositorio con Cloudflare Workers Builds. Configura como carpeta raíz `cloudflare`, instalación `npm ci` y comando de despliegue `npm run db:remote && npm run deploy`. No agregues `seed:remote` a cada despliegue. Mantén los secretos en Cloudflare y la configuración de recursos en `wrangler.jsonc`.
 

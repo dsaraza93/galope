@@ -5,7 +5,7 @@ const keys=createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/cert
 export function auth(ctx){
  const {db,cfg}=ctx;
  function cookie(req){try {return (req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('galope_sid='))?.slice('galope_sid='.length)||'';}catch{return '';}}
- async function session(req){const tok=cookie(req);if(!/^[a-f0-9]{64}$/.test(tok))return null;const s=await db.prepare('SELECT * FROM sessions WHERE token_hash=? AND expires_at>?').get(await sha(tok),Date.now());return s&&cfg.adminEmails.includes(s.email)?s:null;}
+ async function session(req){if(!cfg.googleClientId||!cfg.adminEmails.length)return null;const tok=cookie(req);if(!/^[a-f0-9]{64}$/.test(tok))return null;const s=await db.prepare('SELECT * FROM sessions WHERE token_hash=? AND expires_at>?').get(await sha(tok),Date.now());return s&&cfg.adminEmails.includes(s.email)?s:null;}
  return {
  async requireAdmin(req){const s=await session(req);if(!s)throw new HttpError(401,'Inicia sesión como administrador');req.admin={email:s.email,name:s.name};},
  async status(req){const s=await session(req);return {mode:'google',authenticated:!!s,email:s?.email||null,name:s?.name||null,googleClientId:cfg.googleClientId};},

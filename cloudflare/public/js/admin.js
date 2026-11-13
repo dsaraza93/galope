@@ -43,6 +43,10 @@ function loadGoogle() {
 async function showLogin() {
   $('#app').innerHTML = `<header class="top"><div class="wrap"><a class="brand" href="#"><img src="/img/logo.webp" alt="Galope"></a><span style="flex:1"></span><a class="pill sm" href="#">← Ver tienda</a></div></header>
 <div class="login"><h2>Acceso administrador</h2><p>Inicia sesión con la cuenta de Google autorizada para administrar la tienda.</p><div id="gbtn"></div><p class="err" id="lerr" role="alert"></p></div>`;
+  if (!auth.googleClientId) {
+    $('#lerr').textContent = 'El acceso administrador está pendiente de configurar. Añade GOOGLE_CLIENT_ID en Cloudflare para habilitar el inicio de sesión.';
+    return;
+  }
   try {
     await loadGoogle();
     google.accounts.id.initialize({
