@@ -20,9 +20,9 @@ test('la instalación de Galope tiene identidad propia, catálogo llanero y cero
  } finally {db.close();}
 });
 function storefront(){
- const nodes=Object.fromEntries(['#grid','#chips','#cnt'].map(k=>[k,{innerHTML:'',textContent:''}]));
+ const nodes=Object.fromEntries(['#grid','#chips','#cnt','#catalog-pagination'].map(k=>[k,{innerHTML:'',textContent:''}]));
  const media=()=>({matches:false,addEventListener:()=>{}});
- const context=vm.createContext({Intl,URL,matchMedia:media,window:{matchMedia:media},setInterval:()=>{},document:{querySelector:s=>nodes[s],querySelectorAll:()=>[],addEventListener:()=>{}},localStorage:{getItem:()=>null,setItem:()=>{}},location:{origin:'https://galope.test',pathname:'/',href:'https://galope.test/'}});
+ const context=vm.createContext({Intl,URL,matchMedia:media,window:{matchMedia:media},setInterval:()=>{},document:{querySelector:s=>nodes[s],querySelectorAll:()=>[],addEventListener:()=>{},getElementById:()=>null},localStorage:{getItem:()=>null,setItem:()=>{}},location:{origin:'https://galope.test',pathname:'/',href:'https://galope.test/'}});
  for(const file of ['common','store'])vm.runInContext(fs.readFileSync('public/js/'+file+'.js','utf8'),context);
  const products=[{id:1,name:'Sombrero hombre',world:'hombre',price:180000,old:0},{id:2,name:'Sombrero mujer',world:'mujer',price:150000,old:0},{id:3,name:'Sombrero unisex',world:'unisex',price:70000,old:85000}].map(p=>({...p,cat:'Sombreros',categories:['Sombreros'],desc:'Tradición llanera',stock:2,imgs:[],feats:[]}));
  context.fixture={products,categories:[['Sombreros','sombreros']],settings:{}};
@@ -63,4 +63,22 @@ test('inicializar ajustes faltantes de una base con productos no mezcla el catá
   assert.equal(db.prepare('SELECT stock FROM products WHERE id=50').get().stock,8);
   assert.ok(db.prepare("SELECT value FROM settings WHERE key='store'").get());
  } finally {db.close();}
+});
+
+function catalogFixture(count=35){const f=storefront();f.context.many=Array.from({length:count},(_,i)=>({id:i+1,name:'Producto '+(i+1),world:'hombre',price:50000,old:0,cat:i%2?'Botas':'Sombreros',categories:[i%2?'Botas':'Sombreros'],desc:'Estilo llanero',stock:3,imgs:[],feats:[]}));f.run('S.products=many;S.categories=[["Sombreros","sombreros"],["Botas","botas"]];renderGrid();');return f;}
+const cardCount=f=>(f.nodes['#grid'].innerHTML.match(/<article class="pc"/g)||[]).length;
+test('el catálogo renderiza doce tarjetas por página y acota los botones de navegación',()=>{
+ const f=catalogFixture();assert.equal(cardCount(f),12);assert.match(f.nodes['#grid'].innerHTML,/data-arg="12"/);assert.doesNotMatch(f.nodes['#grid'].innerHTML,/data-arg="13"/);
+ f.run('setCatalogPage(2)');assert.equal(cardCount(f),12);assert.match(f.nodes['#grid'].innerHTML,/data-arg="13"/);assert.doesNotMatch(f.nodes['#grid'].innerHTML,/data-arg="12"/);
+ f.run('setCatalogPage(3)');assert.equal(cardCount(f),11);assert.match(f.nodes['#catalog-pagination'].innerHTML,/Mostrando 25–35 de 35/);
+ f.run('setCatalogPage(999)');assert.equal(cardCount(f),11);assert.match(f.nodes['#catalog-pagination'].innerHTML,/Página 3 de 3/);
+ const large=catalogFixture(1001);large.run('setCatalogPage(40)');assert.equal(cardCount(large),12);assert.ok((large.nodes['#catalog-pagination'].innerHTML.match(/<button/g)||[]).length<=7);
+});
+test('cambiar filtros o buscar fuera de la página actual vuelve a la primera página',()=>{
+ const f=catalogFixture();f.run("setCatalogPage(3);cat='Botas';renderGrid()");assert.equal(cardCount(f),12);assert.match(f.nodes['#catalog-pagination'].innerHTML,/Página 1 de 2/);
+ f.run("cat='';q='Producto 35';renderGrid()");assert.equal(cardCount(f),1);assert.match(f.nodes['#grid'].innerHTML,/Producto 35/);assert.equal(f.nodes['#catalog-pagination'].hidden,true);
+ f.run("q='sin coincidencias';renderGrid()");assert.equal(cardCount(f),0);assert.equal(f.nodes['#catalog-pagination'].hidden,true);
+});
+test('al reducir favoritos en la última página se conserva una página válida',()=>{
+ const f=catalogFixture();f.run('favs=S.products.map(p=>p.id);favOnly=true;renderGrid();setCatalogPage(3);favs=favs.slice(0,24);renderGrid();');assert.equal(cardCount(f),12);assert.match(f.nodes['#catalog-pagination'].innerHTML,/Página 2 de 2/);
 });

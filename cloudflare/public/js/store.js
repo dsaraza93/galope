@@ -26,6 +26,8 @@ let cart = lsGet('galope_cart', []);   // [{id, q}] — solo ids y cantidades; e
 let favs = lsGet('galope_fav', []);
 let world = '', ageRange = '', cat = '', q = '', toysOnly = false, stimOnly = false, offersOnly = false, favOnly = false, si = 0, tm, paused = false, manualPause = false, vq = 1;
 const D = 6500;
+const CATALOG_PAGE_SIZE=12;
+let catalogPage=1,catalogFilterKey='';
 
 async function loadStore() {
   S = await api('/store');
@@ -103,7 +105,7 @@ ${(S.sidePromos||[]).some(p=>p.active)?`<section class="galope-side-promos" aria
 <section class="trust-horizontal" aria-labelledby="trust-cloud-title"><div class="trust-cloud-inner"><h2 id="trust-cloud-title">¿Por qué comprar <em>con nosotros?</em></h2><p class="trust-cloud-sub">Beneficios que acompañan tu compra</p><div class="trust-carousel" id="trust-carousel" aria-label="Beneficios de Galope"><div class="trust" id="trust-track">${(S.settings.benefits||[]).filter(b=>b.active).map((b,i)=>`<article class="trust-benefit" style="--trust-index:${i}"><span class="trust-benefit-icon">${benefitIcon(b.icon)}</span><span class="trust-benefit-copy"><b>${esc(b.title)}</b><small>${esc(b.description)}</small></span></article>`).join('')}</div></div><div class="trust-controls" aria-label="Desplazar beneficios"><button class="trust-nav" type="button" data-act="trustprev" aria-label="Beneficio anterior">‹</button><div class="trust-dots" id="trust-dots" aria-label="Posición del carrusel"></div><button class="trust-nav" type="button" data-act="trustnext" aria-label="Siguiente beneficio">›</button></div></div></section>
 <section class="sec" id="cats"><div class="sec-h"><h2>La tradición se lleva <em>con estilo.</em></h2><div class="stage-nav" role="group" aria-label="Explorar por público"><span>Explorar:</span><button type="button" data-act="world" data-arg="hombre">Hombre</button><button type="button" data-act="world" data-arg="mujer">Mujer</button></div></div><div class="cgrid">${CATS.slice(0,6).map((c, i) => `<button class="cc" data-act="go" data-arg="${esc(c[0])}" style="--t:${CT[i % CT.length]}"><div class="ci"><img src="/img/${esc(c[1])}.svg" alt=""></div><b>${esc(c[0])}</b><small>Ver productos</small></button>`).join('')}</div></section>
 <section class="fe"><div class="t"><span class="galope-eyebrow">HECHO PARA LLEVAR LO NUESTRO</span><h2>Del llano, <em>para todos los días.</em></h2><p>Encuentra ese detalle que habla de ti. Explora nuestra selección de sombreros, botas y accesorios llaneros.</p><button class="btn" data-act="browse">Explorar colección →</button></div><div class="im galope-promo-art" aria-hidden="true"><span class="galope-pair"></span></div></section>
-<section class="sec" id="prods"><div class="sec-h"><h2>Tu esencia. <em>Tu estilo llanero.</em></h2><span id="cnt" style="color:var(--mut)"></span></div><div class="cats" id="chips"></div><div class="pgrid" id="grid"></div></section>
+<section class="sec" id="prods"><div class="sec-h"><h2>Tu esencia. <em>Tu estilo llanero.</em></h2><span id="cnt" style="color:var(--mut)"></span></div><div class="cats" id="chips"></div><div class="pgrid" id="grid"></div><nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden></nav></section>
 <section class="nl nl-club-visual galope-club" id="contacto" aria-labelledby="club-title"><div class="galope-club-art"><img class="galope-club-photo" src="/img/club-galope.webp" alt="" loading="lazy" width="1122" height="1402"><span class="galope-club-label"><img src="/img/sombreros.svg" alt="" width="28" height="28"> CLUB GALOPE</span><div class="galope-club-art-copy"><span>PARA QUIENES LLEVAN EL LLANO DENTRO</span><p>Lo nuestro<br>se lleva <em>puesto.</em></p><small>Galope · Tienda Llanera</small></div></div><div class="galope-club-content"><span class="galope-club-eyebrow"><i aria-hidden="true"></i> EL ESTILO NOS UNE</span><h2 id="club-title">Ser parte del llano <em>tiene sus ventajas.</em></h2><p class="galope-club-intro">Únete al Club Galope y recibe novedades y promociones exclusivas por WhatsApp.</p><div class="galope-club-perks" aria-label="Novedades del club"><span>Nuevas colecciones</span><span>Promociones</span><span>Estilo llanero</span></div><form class="club-form" data-form="subscribe"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="club-fields"><label class="club-field"><span>Tu nombre <small>(opcional)</small></span><input name="name" maxlength="60" autocomplete="given-name" placeholder="Ej. Laura"></label><label class="club-field"><span>WhatsApp <b aria-hidden="true">*</b></span><input required name="tel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Número de celular" aria-label="WhatsApp"></label></div><fieldset class="club-interests"><legend>¿Qué productos te interesan?</legend><label><input type="radio" name="interest" value="hombre"> Hombre</label><label><input type="radio" name="interest" value="mujer"> Mujer</label><label><input type="radio" name="interest" value="ambos" checked> Ambos</label></fieldset><label class="club-consent"><input type="checkbox" name="consent" required><span>Autorizo a Galope a enviarme novedades y promociones por WhatsApp. Acepto la política de tratamiento de datos y puedo solicitar mi baja cuando quiera.</span></label><button class="btn" type="submit">Unirme al club</button></form><p class="galope-club-footnote">Tú eliges lo que te interesa. Puedes solicitar tu baja cuando quieras.</p></div></section></main>
 <div class="galope-footer-horizon" aria-hidden="true"><i></i><svg viewBox="0 0 1200 24" preserveAspectRatio="none"><path fill="currentColor" d="M0 24V8C150 14 300 4 450 10S750 6 900 14S1100 5 1200 9V24Z"/></svg></div>
 <footer class="galope-footer"><div class="wrap w fg"><div class="footer-brand"><img src="/img/logo.webp" alt="Galope Tienda Llanera" width="120" height="120"><p>Los mejores diseños en productos llaneros. Villavicencio, Meta.</p></div><div><h3>Explora</h3><a href="#" data-act="scroll" data-arg="cats">Categorías</a><a href="#" data-act="scroll" data-arg="prods">Productos</a><a href="#" data-act="offers">Ofertas</a></div><div><h3>Atención</h3><a href="#" data-act="wa">WhatsApp</a><p class="footer-location">Villavicencio, Colombia</p><a href="https://www.instagram.com/galopetiendallaneraco" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a><a class="footer-admin" href="#admin" data-act="admin">Acceso administrador</a></div></div></footer>
@@ -228,17 +230,44 @@ function renderSearchResults() {
 function isMujerCategory(category) {
   return S.products.some((p) => (p.categories || [p.cat]).includes(category) && p.world === 'mujer');
 }
-function renderGrid() {
+function renderGrid({resetPage=false}={}) {
   if (!$('#grid')) return;
   const list = S.products.filter((p) => (!offersOnly || p.old > p.price) && (!stimOnly || /estimul|aprendiz|didáctic|didactic|sensorial|montessori|educativ|motric|gimnasio|caminador|encajab|bloques/i.test([...(p.categories || [p.cat]),p.name,p.desc].join(' '))) && (!toysOnly || /jueg|juguet|muñec|munec|carros|pistas|bloques|figuras|puzzle|rompecabez|peluche|didáctic|didactic|estimula/i.test([...(p.categories || [p.cat]), p.name].join(' '))) && (!world || (p.world === world || (world !== 'unisex' && p.world === 'unisex'))) && (!cat || (p.categories || [p.cat]).includes(cat)) && (!ageRange || (() => { const [min,max] = ageRange.split('-').map(Number); return (p.ageMin ?? 0) <= max && (p.ageMax ?? 36) >= min; })()) && (!favOnly || favs.includes(p.id)) && matchSearch(p, q));
+  const filterKey=JSON.stringify([world,ageRange,cat,normSearch(q),toysOnly,stimOnly,offersOnly,favOnly]);
+  if(resetPage || filterKey!==catalogFilterKey)catalogPage=1;
+  catalogFilterKey=filterKey;
+  const totalPages=Math.max(1,Math.ceil(list.length/CATALOG_PAGE_SIZE));
+  catalogPage=Math.max(1,Math.min(catalogPage,totalPages));
+  const start=(catalogPage-1)*CATALOG_PAGE_SIZE,visible=list.slice(start,start+CATALOG_PAGE_SIZE);
+  renderCatalogPagination(list.length,totalPages,start,visible.length);
   const shownCategories = S.categories.filter((c) => !world || S.products.some((p) => (p.world === world || (world !== 'unisex' && p.world === 'unisex')) && (p.categories || [p.cat]).includes(c[0])));
   $('#chips').innerHTML = `<label class="catalog-filter">Categoría <select aria-label="Filtrar productos por categoría" data-chg="catalogcat"><option value="">Todas las categorías</option>${shownCategories.map((c) => `<option value="${esc(c[0])}" ${cat === c[0] ? 'selected' : ''}>${esc(c[0])}</option>`).join('')}</select></label><label class="catalog-filter">Para <select aria-label="Filtrar productos por público" data-chg="audience"><option value="">Todos</option>${[['hombre','Hombre'],['mujer','Mujer'],['unisex','Unisex']].map(([v,t])=>`<option value="${v}" ${world===v?'selected':''}>${t}</option>`).join('')}</select></label>`;
   document.querySelectorAll('.stage-nav [data-act=world]').forEach((b) => { b.classList.toggle('on', b.dataset.arg === world); b.setAttribute('aria-pressed', String(b.dataset.arg === world)); });
   $('#cnt').textContent = (offersOnly ? 'Ofertas · ' : world === 'mujer' ? 'Mujer · ' : world === 'hombre' ? 'Hombre · ' : world === 'unisex' ? 'Unisex · ' : '') + list.length + ' productos';
-  $('#grid').innerHTML = list.length ? list.map((p) => {
+  $('#grid').innerHTML = visible.length ? visible.map((p) => {
     const dc = p.old > p.price ? Math.round((1 - p.price / p.old) * 100) : 0, im = imgs(p);
     return `<article class="pc" style="--t:${tint(p)}"><button class="pi" data-act="view" data-arg="${p.id}" aria-label="Ver detalles de ${esc(p.name)}">${vis(p)}${im[1] ? `<span class="alt">${pic(im[1], p.name)}</span>` : ''}${dc ? `<span class="off">-${dc}%</span>` : p.badge ? `<span class="off">${esc(p.badge)}</span>` : ''}${im.length > 1 ? `<span class="cnt">${im.length} fotos</span>` : ''}</button><button class="hb" data-act="fav" data-arg="${p.id}" aria-label="${favs.includes(p.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}: ${esc(p.name)}" aria-pressed="${favs.includes(p.id)}">${favs.includes(p.id) ? '♥' : '♡'}</button><div class="cb"><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3><p class="ds">${esc(p.desc)}</p><div class="chips2">${p.stock > 0 && p.stock <= 5 ? `<span class="lo">Quedan ${p.stock}</span>` : ''}${p.stock < 1 ? '<span class="lo">Agotado</span>' : ''}</div><div class="pr"><b>${COP(p.price)}</b>${p.old > p.price ? `<s>${COP(p.old)}</s>` : ''}</div><div class="act"><button class="btn" data-act="view" data-arg="${p.id}" aria-label="Ver detalles de ${esc(p.name)}"><span class="details-full">Ver detalles</span><span class="details-short" aria-hidden="true">Ver</span></button><button class="ib" data-act="add" data-arg="${p.id}" ${p.stock < 1 ? 'disabled' : ''} aria-label="Agregar ${esc(p.name)} al carrito">${IC.bag}</button></div></div></article>`;
   }).join('') : '<div class="empty" style="grid-column:1/-1">No encontramos productos. Prueba otra palabra o elige otra categoría.</div>';
+}
+
+function renderCatalogPagination(total,totalPages,start,shown) {
+  const nav=$('#catalog-pagination');if(!nav)return;
+  nav.hidden=totalPages<=1;
+  if(nav.hidden){nav.innerHTML='';return;}
+  const numbers=[...new Set([1,catalogPage-1,catalogPage,catalogPage+1,totalPages])].filter(p=>p>=1&&p<=totalPages).sort((a,b)=>a-b);
+  const links=[];let previous=0;
+  for(const page of numbers){
+    if(previous && page-previous>1)links.push('<span class="catalog-page-gap" aria-hidden="true">…</span>');
+    links.push(`<button type="button" class="catalog-page-button${page===catalogPage?' current':''}" data-act="catalogpage" data-arg="${page}" aria-label="Página ${page}" aria-controls="grid"${page===catalogPage?' aria-current="page"':''}>${page}</button>`);
+    previous=page;
+  }
+  nav.innerHTML=`<div class="catalog-pagination-controls"><button type="button" class="catalog-page-button catalog-page-prev" data-act="catalogpage" data-arg="${catalogPage-1}" aria-controls="grid" ${catalogPage===1?'disabled':''}>‹ Anterior</button><div class="catalog-page-numbers">${links.join('')}</div><button type="button" class="catalog-page-button catalog-page-next" data-act="catalogpage" data-arg="${catalogPage+1}" aria-controls="grid" ${catalogPage===totalPages?'disabled':''}>Siguiente ›</button></div><p class="catalog-page-status" role="status" aria-live="polite">Mostrando ${start+1}–${start+shown} de ${total} productos · Página ${catalogPage} de ${totalPages}</p>`;
+}
+function setCatalogPage(value) {
+  const requested=Number(value);
+  if(!Number.isInteger(requested)||requested<1||requested===catalogPage)return;
+  catalogPage=requested;renderGrid();goTo('prods');
+  $('#catalog-pagination [aria-current="page"]')?.focus({preventScroll:true});
 }
 
 function upd() {

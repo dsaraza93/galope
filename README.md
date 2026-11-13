@@ -6,7 +6,7 @@ Tienda virtual de Galope con catálogo de productos llaneros: rojo, negro y crem
 
 ## Funciones
 
-- Catálogo, búsqueda con sugerencias, filtros por categoría y público (hombre, mujer, unisex), ofertas y favoritos.
+- Catálogo paginado de 12 productos por página, búsqueda con sugerencias, filtros por categoría y público (hombre, mujer, unisex), ofertas y favoritos. La búsqueda y los filtros consultan todo el catálogo; al cambiar de criterio se vuelve a la primera página.
 - Fichas de producto, hasta cuatro fotos, galería, zoom y enlaces compartibles.
 - Carrito persistente, recuperación de pagos, checkout Bold y conciliación de inventario en servidor.
 - Administración mediante Google: productos, existencias, pedidos y estados logísticos, clientes, ventas y exportaciones CSV.
